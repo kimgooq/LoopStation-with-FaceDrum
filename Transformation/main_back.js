@@ -1,4 +1,5 @@
 import * as THREE from "./three.module.js";
+// import { MathUtils } from "./MathUtils.js";
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -12,13 +13,32 @@ const pointer = new THREE.Vector2();
 const pointer_0_0 = new THREE.Vector2();
 const pointer_10_0 = new THREE.Vector2();
 
+// pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+// pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+/*
+0,0
+=> -1 // 1
+
+10,0
+=>
+( 10 / window.innerWidth ) * 2 - 1 // 1
+
+0,10
+=>
+-1 // - ( 10 / Height )*2 +1
+
+pointer
+
+*/
+
 //camera
 const camera = new THREE.PerspectiveCamera(
   45,
   window.innerWidth / window.innerHeight
 );
-// camera.position.set(50, -50, 100);
-camera.position.set(0, 0, 100);
+camera.position.set(50, -50, 100);
+// camera.position.set(0, 0, 100);
 camera.lookAt(0, 0, 0);
 camera.up.set(0, 1, 0);
 
@@ -60,19 +80,10 @@ const box = new THREE.Mesh(box_geo, material);
 box.position.set(0, 0, 0);
 box.lookAt(0, 0, 100);
 box.up.set(0, 1, 0);
-
-// scene.matrixAutoUpdate = false;
-
 box.matrixAutoUpdate = false;
 
-// box.matrixWorldNeedsUpdate = true;
-
-let box_world_position = new THREE.Vector3();
-
 let current_matrix = new THREE.Matrix4();
-current_matrix.copy(box.matrix);
-
-// Rotation
+//Rotation
 // key 'r' > x 3 degree
 let mat_r = new THREE.Matrix4().makeRotationX(THREE.MathUtils.degToRad(3));
 // key 't' > y 3 degree
@@ -86,60 +97,65 @@ let mat_g = new THREE.Matrix4().makeRotationY(THREE.MathUtils.degToRad(-3));
 // key 'h' > z 3 degree
 let mat_h = new THREE.Matrix4().makeRotationZ(THREE.MathUtils.degToRad(-3));
 
-// Translation
-let degree_h_10pixel = (camera.fov * 10) / window.innerWidth;
-let degree_v_10pixel = (camera.fov * 10) / window.innerHeight;
-
-let vec_to_camera = new THREE.Vector3(
-  camera.position.x - box_world_position.x,
-  camera.position.y - box_world_position.y,
-  camera.position.z - box_world_position.z
-);
-let mat_trans_to_camera = new THREE.Matrix4().makeTranslation(
-  vec_to_camera.x,
-  vec_to_camera.y,
-  vec_to_camera.z
-);
-let mat_rota_by_camera = new THREE.Matrix4().makeRotationY(
-  THREE.MathUtils.degToRad(-degree_h_10pixel)
-);
-// key 'a' > left 10pixel
+//Translation
+let pixel_10;
+// key 'a' > x 3 degree
 let mat_a = new THREE.Matrix4().makeTranslation(-0.5, 0, 0);
-// key 'd' > left 10pixel
+// key 'd' > x 3 degree
 let mat_d = new THREE.Matrix4().makeTranslation(0.5, 0, 0);
-// key 'w' > left 10pixel
+// key 'w' > x 3 degree
 let mat_w = new THREE.Matrix4().makeTranslation(0, 0.5, 0);
-// key 's' > left 10pixel
+// key 's' > x 3 degree
 let mat_s = new THREE.Matrix4().makeTranslation(0, -0.5, 0);
+
+// box.matrix = new THREE.Matrix4().makeTranslation(0, 0, 10).multiply(mat_r);
+// box.matrix = new THREE.Matrix4().makeTranslation(0, 0, 80);
+
+pointer_0_0.x = (0 / window.innerWidth) * 2 - 1;
+pointer_0_0.y = -(0 / window.innerHeight) * 2 + 1;
+
+pointer_10_0.x = (100 / window.innerWidth) * 2 - 1;
+pointer_10_0.y = -(100 / window.innerHeight) * 2 + 1;
+
+// const p0_0 = raycaster.setFromCamera(pointer_0_0, camera);
+// const p10_0 = raycaster.setFromCamera(pointer_10_0, camera);
+// const distance = pointer_0_0.distanceTo(pointer_10_0);
 
 raycaster.setFromCamera(pointer, camera);
 
-// scene.add(plane);
+scene.add(plane);
 scene.add(ambientLight);
 scene.add(light);
 scene.add(box);
+
+document.addEventListener("click", (event) => {
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  console.log("pointer", pointer);
+  console.log(window.innerWidth);
+  console.log(window.innerHeight);
+});
 
 document.addEventListener("keydown", (event) => {
   //rotation
   if (event.key == "r") {
     console.log("r");
-    // current_matrix = current_matrix.multiply(mat_r);
-    // box.matrix =
-    box.matrix.premultiply(mat_r);
+    current_matrix = current_matrix.multiply(mat_r);
+    box.matrix = box.matrix.multiply(mat_r);
   }
   if (event.key == "t") {
     console.log("t");
-    // current_matrix = current_matrix.multiply(mat_t);
+    current_matrix = current_matrix.multiply(mat_t);
     box.matrix = box.matrix.multiply(mat_t);
   }
   if (event.key == "y") {
     console.log("y");
-    // current_matrix = current_matrix.multiply(mat_y);
+    current_matrix = current_matrix.multiply(mat_y);
     box.matrix = box.matrix.multiply(mat_y);
   }
   if (event.key == "f") {
     console.log("f");
-    // current_matrix = current_matrix.multiply(mat_f);
+    current_matrix = current_matrix.multiply(mat_f);
     box.matrix = box.matrix.multiply(mat_f);
   }
   if (event.key == "g") {
@@ -154,87 +170,30 @@ document.addEventListener("keydown", (event) => {
   }
   //translation
   if (event.key == "a") {
-    // box.matrix = current_matrix.premultiply(mat_a);
-    box.matrix = box.matrix.multiply(mat_a);
+    box.matrix = current_matrix.premultiply(mat_a);
     current_matrix = current_matrix.premultiply(mat_a);
   }
   if (event.key == "d") {
-    box.matrix = box.matrix.multiply(mat_d);
+    box.matrix = current_matrix.premultiply(mat_d);
     current_matrix = current_matrix.premultiply(mat_d);
   }
   if (event.key == "w") {
-    box.matrix = box.matrix.premultiply(mat_w);
+    box.matrix = current_matrix.premultiply(mat_w);
     current_matrix = current_matrix.premultiply(mat_w);
   }
   if (event.key == "s") {
-    box.matrix = box.matrix.premultiply(mat_s);
+    box.matrix = current_matrix.premultiply(mat_s);
     current_matrix = current_matrix.premultiply(mat_s);
   }
   //test
   if (event.key == "z") {
-    // console.log("vec", vec_to_camera);
-    // // console.log("box.getworldposition", box.getWorldPosition(box.position).x);
-    // box.getWorldPosition(box_world_position);
-    // console.log("box_world_position", box_world_position);
-    // console.log("trans", mat_trans_to_camera);
-    // console.log("box.matrixWorld", box.matrixWorld);
-    // console.log("box.matrix", box.matrix);
-    // console.log("degree_h_10pixel", degree_h_10pixel);
-
-    // vec_to_camera = new THREE.Vector3(
-    //   camera.position.x - box_world_position.x,
-    //   camera.position.y - box_world_position.y,
-    //   camera.position.z - box_world_position.z
-    // );
-    box.getWorldPosition(box_world_position);
-
-    vec_to_camera = new THREE.Vector3(
-      box_world_position.x - camera.position.x,
-      box_world_position.y - camera.position.y,
-      box_world_position.z - camera.position.z
-    );
-
-    console.log("vec", vec_to_camera);
-
-    mat_trans_to_camera = new THREE.Matrix4().makeTranslation(
-      vec_to_camera.x,
-      vec_to_camera.y,
-      vec_to_camera.z
-    );
-
-    current_matrix.copy(box.matrix);
-
-    // current_matrix.multiply(mat_trans_to_camera);
-    // current_matrix.multiply(mat_rota_by_camera);
-    // current_matrix.multiply(mat_trans_to_camera.invert());
-
-    box.matrix.premultiply(mat_trans_to_camera);
-    box.matrix.premultiply(mat_rota_by_camera);
-    box.matrix.premultiply(mat_trans_to_camera.invert());
-
-    console.log("trans", mat_trans_to_camera);
-    console.log("trans.invert", mat_trans_to_camera.invert());
-  }
-
-  if (event.key == "x") {
-    box.getWorldPosition(box_world_position);
-    vec_to_camera = new THREE.Vector3(
-      camera.position.x - box_world_position.x,
-      camera.position.y - box_world_position.y,
-      camera.position.z - box_world_position.z
-    );
-    mat_trans_to_camera = new THREE.Matrix4().makeTranslation(
-      vec_to_camera.x,
-      vec_to_camera.y,
-      vec_to_camera.z
-    );
-    console.log("mat_trans_to_camera", mat_trans_to_camera);
-    box.matrix.multiply(mat_trans_to_camera);
-    // console.log("boxworpo", box.getWorldPosition(box.position));
-    // console.log("box", box.position);
-    // box.matrixWorld.premultiply(mat_trans_to_camera);
-    // box.matrixWorld.multiply(mat_rota_by_camera);
-    // box.matrixWorld.premultiply(mat_trans_to_camera.invert());
+    console.log("0_0", pointer_0_0);
+    console.log("10_0", pointer_10_0);
+    // console.log("distance", window.innerWidth);
+    // console.log("p00", p0_0);
+    // console.log("p100", p10_0);
+    console.log("matrix", box.matrix);
+    console.log("getPixelRatio", renderer.getPixelRatio());
   }
 });
 
