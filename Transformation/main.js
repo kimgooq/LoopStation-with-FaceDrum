@@ -17,7 +17,7 @@ const camera = new THREE.PerspectiveCamera(
   45,
   window.innerWidth / window.innerHeight
 );
-camera.position.set(50, 50, 50);
+camera.position.set(0, 50, 0);
 
 // camera.position.set(0, 50, 0);
 camera.lookAt(0, 0, 0); //box position
@@ -87,7 +87,6 @@ let mat_g = new THREE.Matrix4().makeRotationY(THREE.MathUtils.degToRad(-3));
 let mat_h = new THREE.Matrix4().makeRotationZ(THREE.MathUtils.degToRad(-3));
 
 // Translation
-let degree_h_10pixel = (camera.fov * 10) / window.innerHeight;
 let degree_v_10pixel = (camera.fov * 10) / window.innerHeight;
 
 let vec_to_camera = new THREE.Vector3(
@@ -138,22 +137,24 @@ function Rota_by_camera_X(degree) {
 function Rota_by_camera_Z(degree) {
   if (vec_to_camera.x == 0) {
     mat_rota_by_camera = new THREE.Matrix4().makeRotationAxis(
-      new THREE.Vector3(1, 0, 0)
+      new THREE.Vector3(10, 0, 0)
         .cross(
           new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
         )
         .normalize(),
       THREE.MathUtils.degToRad(degree)
     );
+
     console.log(
-      new THREE.Vector3(0, 0, 1).cross(
+      "vec_to_camera.x == 0",
+      new THREE.Vector3(10, 0, 0).cross(
         new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
       )
     );
     return mat_rota_by_camera;
   } else if (vec_to_camera.z == 0) {
     mat_rota_by_camera = new THREE.Matrix4().makeRotationAxis(
-      new THREE.Vector3(0, 0, 1)
+      new THREE.Vector3(0, 0, 10)
         .cross(
           new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
         )
@@ -161,7 +162,8 @@ function Rota_by_camera_Z(degree) {
       THREE.MathUtils.degToRad(degree)
     );
     console.log(
-      new THREE.Vector3(0, 0, 1).cross(
+      "vec_to_camera.z == 0",
+      new THREE.Vector3(0, 0, 10).cross(
         new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
       )
     );
@@ -247,7 +249,7 @@ document.addEventListener("keydown", (event) => {
     case "a":
       //y기준 시계반대, 즉 우측 봄
       // mat_trans_to_camera = new THREE.Matrix4().makeTranslation(0, 15, 0);
-      mat_rota_by_camera = Rota_by_camera_Z(degree_h_10pixel);
+      mat_rota_by_camera = Rota_by_camera_Z(degree_v_10pixel);
       box.matrix.premultiply(mat_trans_to_camera);
       console.log(mat_trans_to_camera);
       break;
@@ -259,12 +261,12 @@ document.addEventListener("keydown", (event) => {
 
     case "c":
       mat_trans_to_camera = new THREE.Matrix4().makeTranslation(0, -50, 0);
-      mat_rota_by_camera = Rota_by_camera_Z(degree_h_10pixel);
+      mat_rota_by_camera = Rota_by_camera_Z(degree_v_10pixel);
       box.matrix.premultiply(mat_trans_to_camera.invert());
       break;
 
     case "d":
-      mat_rota_by_camera = Rota_by_camera_Z(-degree_h_10pixel);
+      mat_rota_by_camera = Rota_by_camera_Z(-degree_v_10pixel);
       box.matrix
         .premultiply(mat_trans_to_camera)
         .premultiply(mat_rota_by_camera)
@@ -288,29 +290,12 @@ document.addEventListener("keydown", (event) => {
     //test@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     case "z":
-      // let vec_test = new THREE.Vector3(50, -50, 100);
-      // let vec_tmp = new THREE.Vector3(50, -50, 0).normalize();
-      // console.log("vec nor", vec_test.normalize());
-      // console.log("vec", vec_tmp);
-      // let vec_nor = new THREE.Vector3(
-      //   0, // vec_test.normalize.x,
-      //   vec_test.normalize.y,
-      //   0 // vec_test.normalize.z
-      // );
-      // let mat_test = new THREE.Matrix4().makeRotationAxis(
-      //   vec_test.normalize(),
-      //   THREE.MathUtils.degToRad(15)
-      // );
+      mat_rota_by_camera = Rota_by_camera_Z(degree_v_10pixel);
+      box.matrix
+        .premultiply(mat_trans_to_camera)
+        .premultiply(mat_rota_by_camera)
+        .premultiply(mat_trans_to_camera.invert());
 
-      let mat_ro = Rota_by_camera_X(15);
-      console.log(mat_ro);
-      // let mat_test_2 = new THREE.Matrix4().makeTranslation(
-      //   -vec_to_camera.x / 2,
-      //   -vec_to_camera.y / 2,
-      //   -vec_to_camera.z / 2
-      // );
-
-      box.matrix.premultiply(mat_ro);
       break;
 
     case "x":
