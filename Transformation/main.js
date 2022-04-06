@@ -7,15 +7,19 @@ document.body.appendChild(renderer.domElement);
 console.log(window.innerWidth);
 console.log(window.innerHeight);
 const scene = new THREE.Scene();
-
+// let ttt = new THREE.Vector3().crossVectors(
+//   new THREE.Vector3(1, 0, -1),
+//   new THREE.Vector3(-1, -1, -1)
+// );
+// console.log(ttt);
 //camera
 const camera = new THREE.PerspectiveCamera(
   45,
   window.innerWidth / window.innerHeight
 );
-// camera.position.set(50, 100, 50);
+camera.position.set(50, 50, 50);
 
-camera.position.set(0, 50, 0);
+// camera.position.set(0, 50, 0);
 camera.lookAt(0, 0, 0); //box position
 
 console.log("cam:", camera);
@@ -83,7 +87,7 @@ let mat_g = new THREE.Matrix4().makeRotationY(THREE.MathUtils.degToRad(-3));
 let mat_h = new THREE.Matrix4().makeRotationZ(THREE.MathUtils.degToRad(-3));
 
 // Translation
-let degree_h_10pixel = (camera.fov * 10) / window.innerWidth;
+let degree_h_10pixel = (camera.fov * 10) / window.innerHeight;
 let degree_v_10pixel = (camera.fov * 10) / window.innerHeight;
 
 let vec_to_camera = new THREE.Vector3(
@@ -112,7 +116,8 @@ function Rota_by_camera_X(degree) {
   } else {
     console.log("none case");
   }
-
+  // 50 100 50
+  // 50 0 -50
   mat_rota_by_camera = new THREE.Matrix4().makeRotationAxis(
     new THREE.Vector3(-vec_to_camera.z, 0, vec_to_camera.x).normalize(),
     THREE.MathUtils.degToRad(degree)
@@ -140,6 +145,11 @@ function Rota_by_camera_Z(degree) {
         .normalize(),
       THREE.MathUtils.degToRad(degree)
     );
+    console.log(
+      new THREE.Vector3(0, 0, 1).cross(
+        new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
+      )
+    );
     return mat_rota_by_camera;
   } else if (vec_to_camera.z == 0) {
     mat_rota_by_camera = new THREE.Matrix4().makeRotationAxis(
@@ -149,6 +159,11 @@ function Rota_by_camera_Z(degree) {
         )
         .normalize(),
       THREE.MathUtils.degToRad(degree)
+    );
+    console.log(
+      new THREE.Vector3(0, 0, 1).cross(
+        new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
+      )
     );
     return mat_rota_by_camera;
   } else {
@@ -164,18 +179,14 @@ function Rota_by_camera_Z(degree) {
     THREE.MathUtils.degToRad(degree)
   );
   console.log(
-    "not x z는 0이 아님, vec",
-    new THREE.Vector3(vec_to_camera.z, 0, -vec_to_camera.x)
+    "dmat",
+    new THREE.Vector3(0, 0, 1).cross(
+      new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
+    )
+    // 50 0 -50
+    // -50 -100 -50
+    // 100 -50 0
   );
-
-  // mat_rota_by_camera = new THREE.Matrix4().makeRotationAxis(
-  //   Vec_by_camera_X.cross(
-  //     new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
-  //   ).normalize(),
-  //   THREE.MathUtils.degToRad(degree)
-  // );
-
-  console.log("mat", mat_rota_by_camera);
   return mat_rota_by_camera;
 }
 console.log(vec_to_camera.y);
@@ -235,13 +246,14 @@ document.addEventListener("keydown", (event) => {
     //translation
     case "a":
       //y기준 시계반대, 즉 우측 봄
+      // mat_trans_to_camera = new THREE.Matrix4().makeTranslation(0, 15, 0);
       mat_rota_by_camera = Rota_by_camera_Z(degree_h_10pixel);
       box.matrix.premultiply(mat_trans_to_camera);
       console.log(mat_trans_to_camera);
       break;
 
     case "b":
-      mat_rota_by_camera = Rota_by_camera_Z(degree_h_10pixel);
+      mat_rota_by_camera = Rota_by_camera_Z(5);
       box.matrix.premultiply(mat_rota_by_camera);
       break;
 
@@ -261,9 +273,9 @@ document.addEventListener("keydown", (event) => {
     case "w":
       mat_rota_by_camera = Rota_by_camera_X(degree_v_10pixel);
       box.matrix
-        .premultiply(mat_trans_to_camera)
-        .premultiply(mat_rota_by_camera)
-        .premultiply(mat_trans_to_camera.invert());
+        // .premultiply(mat_trans_to_camera)
+        .premultiply(mat_rota_by_camera);
+      // .premultiply(mat_trans_to_camera.invert());
       break;
     case "s":
       mat_rota_by_camera = Rota_by_camera_X(-degree_v_10pixel);
@@ -303,10 +315,13 @@ document.addEventListener("keydown", (event) => {
 
     case "x":
       mat_rota_by_camera = Rota_by_camera_Z(15);
+      // mat_rota_by_camera = Rota_by_camera_Z(degree_h_10pixel);
       box.matrix
         // .premultiply(mat_trans_to_camera)
         .premultiply(mat_rota_by_camera);
-    // .premultiply(mat_trans_to_camera.invert());
+      // .premultiply(mat_trans_to_camera.invert());
+      console.log(mat_trans_to_camera);
+      break;
   }
 });
 
