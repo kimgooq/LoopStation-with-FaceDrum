@@ -1,9 +1,50 @@
-const videoElement = document.getElementsByClassName("input_video")[0];
+if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+  console.log("This browser does not support the API yet");
+} else {
+  console.log("사용가능");
+}
+
+let videoElement = null;
+let video_Name;
+// try {
+//   videoElement = document.getElementsByClassName("input_webcam")[0];
+//   console.log("webcam is activated");
+// } catch (exception) {
+//   videoElement = document.getElementsByClassName("input_video")[0];
+//   console.log("local video is activated");
+// }
+
+/*
+videoElement.muted = true;
+videoElement.play();
+
+async function detectFrame(now, metadata) {
+  await faceMesh.send({ image: videoElement });
+  videoElement.requestVideoFrameCallback(detectFrame);
+}
+detectFrame();
+*/
+
+$(document).ready(function () {
+  try {
+    console.log("webcam is activated");
+    videoElement = document.getElementsByClassName("input_webcam")[0];
+  } catch (exception) {
+    console.log("local video is activated");
+    videoElement = document.getElementsByClassName("input_video")[0];
+  }
+});
+
+// try {
+//   videoElement = document.getElementsByClassName("input_webcam")[0];
+// } catch (e) {}
+
+console.log(videoElement);
+videoElement = document.getElementsByClassName("input_webcam")[0];
 const canvasElement = document.getElementsByClassName("output_canvas")[0];
 const canvasCtx = canvasElement.getContext("2d");
 
 document.addEventListener("mousedown", MouseDown, false);
-document.addEventListener("mousemove", MouseMove, false);
 document.addEventListener("mouseup", MouseUp, false);
 
 // document.addEventListener("mousewheel", MouseWheel, false);
@@ -22,7 +63,7 @@ renderer.setSize(r_width, r_height);
 renderer.setViewport(0, 0, r_width, r_height);
 document.body.appendChild(renderer.domElement);
 
-const camera_ar = new THREE.PerspectiveCamera(45, r_height / r_width, 1, 500);
+const camera_ar = new THREE.PerspectiveCamera(60, r_height / r_width, 50, 300);
 camera_ar.position.set(0, 0, 100);
 // camera_ar.lookAt(0, 0, 0);
 camera_ar.up.set(0, 1, 0);
@@ -37,20 +78,20 @@ const camera_world = new THREE.PerspectiveCamera(
   45,
   r_height / r_width,
   1,
-  500
+  2000
 );
 camera_world.position.set(50, 50, 150);
 // camera_ar.lookAt(0, 0, 0);
 camera_world.up.set(0, 1, 0);
 
-const light = new THREE.DirectionalLight(0xffffff, 1.0);
+const light = new THREE.DirectionalLight(0xffffff, 1.2);
 light.position.set(0, 0, camera_ar.position.z - camera_ar.near);
 // light.position.set(50, 0, 99);
-const ambientlight = new THREE.AmbientLight(0xffffff, 0.4);
+const ambientlight = new THREE.AmbientLight(0xffffff, 0.2);
 ambientlight.position.set(0, 0, camera_ar.near);
-
-const light_helper = new THREE.DirectionalLightHelper(light, 1);
+const light_helper = new THREE.DirectionalLightHelper(light, 0);
 console.log("light_position", light.position);
+
 const controls = new OrbitControls(camera_world, renderer_world.domElement);
 controls.update();
 
@@ -63,12 +104,27 @@ const mouse = new THREE.Vector2();
 const rayCast = new THREE.Raycaster();
 
 const scene = new THREE.Scene();
-const texture_bg = new THREE.VideoTexture(videoElement);
-scene.background = texture_bg;
+const video_texture = new THREE.VideoTexture(videoElement);
+// scene.background = video_texture;
+
+const frustumHeight =
+  2.0 * camera_ar.far * Math.tan(THREE.MathUtils.degToRad(camera_ar.fov * 0.5));
+console.log("h", frustumHeight);
+const frustumWidth = frustumHeight * camera_ar.aspect;
+
+const plane_geo = new THREE.PlaneGeometry(frustumWidth, frustumHeight);
+// plane_geo.scale(0.2, 0.2, 0.2);
+const plane_mat = new THREE.MeshBasicMaterial({ map: video_texture });
+const video_mesh = new THREE.Mesh(plane_geo, plane_mat);
+video_mesh.position.set(0, 0, camera_ar.position.z - camera_ar.far);
+
+console.log(camera_ar.position.z - camera_ar.far);
+
 scene.add(light);
 scene.add(ambientlight);
 scene.add(light_helper);
 scene.add(camera_helper);
+scene.add(video_mesh);
 
 let oval_point_mesh = null;
 let oval_line = null;
@@ -211,7 +267,7 @@ function onResults2(results) {
 
       const num_oval_points = FACEMESH_FACE_OVAL.length;
       let positions = oval_point_mesh.geometry.attributes.position.array;
-      let positions_line = new Float32Array(positions.length + 9);
+      let positions_line = new Float32Array(positions.length + 3);
 
       for (let i = 0; i < num_oval_points; i++) {
         const index = FACEMESH_FACE_OVAL[i][0];
@@ -239,13 +295,13 @@ function onResults2(results) {
           positions_line[3 * i + 4] = positions_line[1];
           positions_line[3 * i + 5] = positions_line[2];
 
-          positions_line[3 * i + 6] = positions_line[3];
-          positions_line[3 * i + 7] = positions_line[4];
-          positions_line[3 * i + 8] = positions_line[5];
+          // positions_line[3 * i + 6] = positions_line[3];
+          // positions_line[3 * i + 7] = positions_line[4];
+          // positions_line[3 * i + 8] = positions_line[5];
 
-          positions_line[3 * i + 9] = positions_line[6];
-          positions_line[3 * i + 10] = positions_line[7];
-          positions_line[3 * i + 11] = positions_line[8];
+          // positions_line[3 * i + 9] = positions_line[6];
+          // positions_line[3 * i + 10] = positions_line[7];
+          // positions_line[3 * i + 11] = positions_line[8];
         }
       }
       oval_point_mesh.geometry.attributes.position.needsUpdate = true;
@@ -285,8 +341,14 @@ function onResults2(results) {
       light.target = face_mesh;
     }
   }
+  scene.remove(light_helper);
+  scene.remove(camera_helper);
   renderer.render(scene, camera_ar);
+
+  scene.add(light_helper);
+  scene.add(camera_helper);
   renderer_world.render(scene, camera_world);
+
   canvasCtx.restore();
 }
 
@@ -303,14 +365,15 @@ faceMesh.setOptions({
 });
 faceMesh.onResults(onResults2);
 
-/*const camera = new Camera(videoElement, {
+const camera = new Camera(videoElement, {
   onFrame: async () => {
     await faceMesh.send({ image: videoElement });
   },
-  width: 1280,
-  height: 720,
-});*/
-// camera.start();
+  width: r_width,
+  height: r_height,
+});
+
+camera.start();
 let IsPressed = false;
 function MouseDown(e) {
   IsPressed = true;
@@ -319,45 +382,57 @@ function MouseUp(e) {
   IsPressed = false;
 }
 
-function MouseMove(e) {
-  if (IsPressed == true) {
-    mouse.x = (e.clientX / r_width) * 2 - 1;
-    mouse.y = -(e.clientY / r_height) * 2 + 1;
+renderer.domElement.addEventListener(
+  "mousemove",
+  function (e) {
+    if (IsPressed == true) {
+      mouse.x = (e.clientX / r_width) * 2 - 1;
+      mouse.y = -(e.clientY / r_height) * 2 + 1;
 
-    rayCast.setFromCamera(mouse, camera_ar);
+      rayCast.setFromCamera(mouse, camera_ar);
+      let n;
+      n = -camera_ar.near / rayCast.ray.direction.z;
 
-    // let intersects = rayCast.intersectObjects(scene.children);
-    // console.log(intersects[0]);
-    // if (intersects.length == 0) {
-    //   return;
-    // }
-    // console.log(rayCast.ray);
-    let n;
-    n = -camera_ar.near / rayCast.ray.direction.z;
-    // console.log(n);
+      light.position.set(
+        rayCast.ray.direction.x * n,
+        rayCast.ray.direction.y * n,
+        camera_ar.position.z + rayCast.ray.direction.z * n
+      );
+      light.lookAt(0, 0, 0);
+    }
+  },
+  false
+);
+// camera_helper.matrixAutoUpdate = true;
+// camera_ar.matrixAutoUpdate = false;
+// camera_helper.frustumCulled = true;
+const wheeltodistance = 2;
+let light_og_pos;
+let near_og;
+renderer.domElement.addEventListener(
+  "mousewheel",
+  function (e) {
+    near_og = camera_helper.camera.near;
+    // light_og_pos = light.position;
+    if (e.wheelDelta < 0) {
+      camera_helper.camera.near -= wheeltodistance;
+      light.position.z += wheeltodistance;
+    } else if (e.wheelDelta > 0) {
+      light.position.z -= wheeltodistance;
+      camera_ar.near += wheeltodistance;
+    }
+    light.position.x *= camera_helper.camera.near / near_og;
+    light.position.y *= camera_helper.camera.near / near_og;
+    // light.position.x = (light_og_pos.x * light.position.z) / light_og_pos.z;
+    // light.position.y = (light_og_pos.y * light.position.z) / light_og_pos.z;
 
-    light.position.set(
-      rayCast.ray.direction.x * n,
-      rayCast.ray.direction.y * n,
-      camera_ar.position.z + rayCast.ray.direction.z * n
-    );
-
-    console.log(light.position);
-    // if (INTERSECTED != intersects[0].object) {
-    //   INTERSECTED = intersects[0].object;
-    //   scene.remove(INTERSECTED);
-    //   audio.play();
-    //   //console.log(INTERSECTED);
-    // }
-  }
-  // MouseMove(e);
-}
-
-videoElement.muted = true;
-videoElement.play();
-
-async function detectFrame(now, metadata) {
-  await faceMesh.send({ image: videoElement });
-  videoElement.requestVideoFrameCallback(detectFrame);
-}
-detectFrame();
+    // light.position.x = (light_og_pos.x * light_og_pos.z) / light.position.z;
+    // light.position.y = (light_og_pos.y * light_og_pos.z) / light.position.z;
+    light.lookAt(0, 0, 0);
+    camera_ar.updateProjectionMatrix();
+    camera_helper.update();
+    light_helper.update();
+  },
+  false
+);
+console.log(camera_world);
