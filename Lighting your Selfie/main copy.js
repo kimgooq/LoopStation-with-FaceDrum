@@ -22,7 +22,7 @@ renderer.setSize(r_width, r_height);
 renderer.setViewport(0, 0, r_width, r_height);
 document.body.appendChild(renderer.domElement);
 
-const camera_ar = new THREE.PerspectiveCamera(60, r_height / r_width, 50, 300);
+const camera_ar = new THREE.PerspectiveCamera(45, r_height / r_width, 1, 500);
 camera_ar.position.set(0, 0, 100);
 // camera_ar.lookAt(0, 0, 0);
 camera_ar.up.set(0, 1, 0);
@@ -65,25 +65,10 @@ const rayCast = new THREE.Raycaster();
 const scene = new THREE.Scene();
 const texture_bg = new THREE.VideoTexture(videoElement);
 scene.background = texture_bg;
-
-const frustumHeight =
-  2.0 * camera_ar.far * Math.tan(THREE.MathUtils.degToRad(camera_ar.fov * 0.5));
-console.log("h", frustumHeight);
-const frustumWidth = frustumHeight * camera_ar.aspect;
-
-const plane_geo = new THREE.PlaneGeometry(frustumWidth, frustumHeight);
-// plane_geo.scale(0.2, 0.2, 0.2);
-const plane_mat = new THREE.MeshBasicMaterial({ map: texture_bg });
-const video_mesh = new THREE.Mesh(plane_geo, plane_mat);
-video_mesh.position.set(0, 0, camera_ar.position.z - camera_ar.far);
-
-console.log(camera_ar.position.z - camera_ar.far);
-
 scene.add(light);
 scene.add(ambientlight);
 scene.add(light_helper);
 scene.add(camera_helper);
-scene.add(video_mesh);
 
 let oval_point_mesh = null;
 let oval_line = null;
@@ -358,7 +343,6 @@ function MouseMove(e) {
     );
 
     console.log(light.position);
-    light.target = face_mesh;
     // if (INTERSECTED != intersects[0].object) {
     //   INTERSECTED = intersects[0].object;
     //   scene.remove(INTERSECTED);

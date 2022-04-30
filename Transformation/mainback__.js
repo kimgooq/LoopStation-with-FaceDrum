@@ -8,11 +8,12 @@ console.log(window.innerWidth);
 console.log(window.innerHeight);
 const scene = new THREE.Scene();
 
+//camera
 const camera = new THREE.PerspectiveCamera(
   45,
   window.innerWidth / window.innerHeight
 );
-camera.position.set(50, 50, 50);
+camera.position.set(0, 50, 0);
 
 //light
 const ambientLight = new THREE.AmbientLight(0x404040);
@@ -35,32 +36,14 @@ const texture = new THREE.TextureLoader();
 const material = new THREE.MeshPhongMaterial({
   map: texture.load("./image.PNG"),
 });
-/*
- - 'r' :  큐브의 x 축 방향으로 3도 rotation
- - 't' :  큐브의 y 축 방향으로 3도 rotation
- - 'y' :  큐브의 z 축 방향으로 3도 rotation
- - 'f' :  큐브의 x 축 방향으로 -3도 rotation
- - 'g' :  큐브의 y 축 방향으로 -3도 rotation
- - 'h' :  큐브의 z 축 방향으로 -3도 rotation
-(40점)
- - 'a' :  큐브를 화면의 왼쪽 방향으로 10 pix 만큼 평행 이동
- - 'd' :  큐브를 화면의 오른쪽 방향으로 10 pix 만큼 평행 이동
- - 'w' :  큐브를 화면의 위쪽 방향으로 10 pix 만큼 평행 이동
- - 's' :  큐브를 화면의 아래쪽 방향으로 10 pix 만큼 평행 이동
-*/
+
 const box = new THREE.Mesh(box_geo, material);
 box.position.set(0, 0, 0);
-box.lookAt(camera.position.x, camera.position.y, camera.position.z);
-// box.up.set(0, 1, 0);
+box.up.set(0, 1, 0);
 box.matrixAutoUpdate = false;
-box.updateMatrix();
 camera.lookAt(box.position.x, box.position.y, box.position.z);
 
 let box_world_position = new THREE.Vector3();
-box.getWorldPosition(box_world_position);
-
-let current_matrix = new THREE.Matrix4();
-current_matrix.copy(box.matrix);
 
 // Rotation
 // key 'r' > x 3 degree
@@ -79,31 +62,17 @@ let mat_h = new THREE.Matrix4().makeRotationZ(THREE.MathUtils.degToRad(-3));
 // Translation
 let degree_v_10pixel = (camera.fov * 10) / window.innerHeight;
 
-let vec_to_camera = new THREE.Vector3(
-  box_world_position.x - camera.position.x,
-  box_world_position.y - camera.position.y,
-  box_world_position.z - camera.position.z
-);
+let vec_to_camera;
 
 let mat_trans_to_camera;
 
 let mat_rota_by_camera;
 
-let Vec_by_camera_X = new THREE.Vector3();
-
 function Rota_by_camera_X(degree) {
-  box.getWorldPosition(box_world_position);
-  vec_to_camera = new THREE.Vector3(
-    box_world_position.x - camera.position.x,
-    box_world_position.y - camera.position.y,
-    box_world_position.z - camera.position.z
-  );
-
   if (vec_to_camera.x == 0) {
     mat_rota_by_camera = new THREE.Matrix4().makeRotationX(
       THREE.MathUtils.degToRad(degree)
     );
-    console.log("x = 0");
     return mat_rota_by_camera;
   } else if (vec_to_camera.z == 0) {
     mat_rota_by_camera = new THREE.Matrix4().makeRotationZ(
@@ -111,33 +80,16 @@ function Rota_by_camera_X(degree) {
     );
     console.log("z = 0");
     return mat_rota_by_camera;
-  } else {
-    console.log("none case");
   }
-  // 50 100 50
-  // 50 0 -50
-  console.log("none case");
   mat_rota_by_camera = new THREE.Matrix4().makeRotationAxis(
     new THREE.Vector3(-vec_to_camera.z, 0, vec_to_camera.x).normalize(),
     THREE.MathUtils.degToRad(degree)
   );
-  console.log(
-    "not x z는 0이 아님, vec",
-    new THREE.Vector3(vec_to_camera.z, 0, -vec_to_camera.x)
-  );
   return mat_rota_by_camera;
 }
-// function Rota_by_camera_X(degree) {
-//   mat_rota_by_camera = new THREE.Matrix4().makeRotationX(
-//     THREE.MathUtils.degToRad(degree)
-//   );
-//   return mat_rota_by_camera;
-// }
 
 function Rota_by_camera_Z(degree) {
   if (vec_to_camera.z == 0) {
-    box.getWorldPosition(box_world_position);
-    console.log(box_world_position);
     mat_rota_by_camera = new THREE.Matrix4().makeRotationAxis(
       new THREE.Vector3(10, 0, 0)
         .cross(
@@ -156,16 +108,7 @@ function Rota_by_camera_Z(degree) {
         .normalize(),
       THREE.MathUtils.degToRad(degree)
     );
-
-    console.log(
-      "vec_to_camera.x == 0",
-      new THREE.Vector3(10, 0, 0).cross(
-        new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
-      )
-    );
     return mat_rota_by_camera;
-  } else {
-    console.log("none case");
   }
 
   mat_rota_by_camera = new THREE.Matrix4().makeRotationAxis(
@@ -176,26 +119,8 @@ function Rota_by_camera_Z(degree) {
       .normalize(),
     THREE.MathUtils.degToRad(degree)
   );
-  console.log(
-    "dmat",
-    new THREE.Vector3(0, 0, 1).cross(
-      new THREE.Vector3(vec_to_camera.x, vec_to_camera.y, vec_to_camera.z)
-    )
-    // 50 0 -50
-    // -50 -100 -50
-    // 100 -50 0
-  );
   return mat_rota_by_camera;
 }
-console.log(vec_to_camera.y);
-console.log(vec_to_camera.x);
-
-console.log(
-  "test",
-  new THREE.Vector3(1, 2, 1).cross(new THREE.Vector3(1, 0, -1))
-  //높이 2 밑변 루트2 장변 루트6 >> 높이 루트2 밑변 2
-  //-2 2 -2 , 밑변 2루트2 높이2 2루트3
-);
 
 const axesHelper = new THREE.AxesHelper(50);
 scene.add(axesHelper);
@@ -218,15 +143,14 @@ document.addEventListener("keydown", (event) => {
     vec_to_camera.y,
     vec_to_camera.z
   );
+
   //rotation
   switch (event.key) {
     case "r":
-      console.log(camera.position);
       box.matrix.multiply(mat_r);
       break;
     case "t":
       box.matrix.multiply(mat_t);
-      // box.applyMatrix4(mat_r);
       break;
     case "y":
       box.matrix.multiply(mat_y);
@@ -250,10 +174,7 @@ document.addEventListener("keydown", (event) => {
 
     //translation
     case "a":
-      //y기준 시계반대, 즉 우측 봄
-      mat_rota_by_camera = new THREE.Matrix4().makeRotationZ(
-        THREE.MathUtils.degToRad(-degree_v_10pixel)
-      );
+      mat_rota_by_camera = Rota_by_camera_Z(degree_v_10pixel);
       box.matrix
         .premultiply(mat_trans_to_camera)
         .premultiply(mat_rota_by_camera)
@@ -261,52 +182,26 @@ document.addEventListener("keydown", (event) => {
       break;
 
     case "d":
-      mat_rota_by_camera = new THREE.Matrix4().makeRotationZ(
-        THREE.MathUtils.degToRad(degree_v_10pixel)
-      );
+      mat_rota_by_camera = Rota_by_camera_Z(-degree_v_10pixel);
       box.matrix
         .premultiply(mat_trans_to_camera)
         .premultiply(mat_rota_by_camera)
         .premultiply(mat_trans_to_camera.invert());
       break;
+
     case "w":
-      mat_rota_by_camera = new THREE.Matrix4().makeRotationX(
-        THREE.MathUtils.degToRad(degree_v_10pixel)
-      );
+      mat_rota_by_camera = Rota_by_camera_X(degree_v_10pixel);
       box.matrix
         .premultiply(mat_trans_to_camera)
         .premultiply(mat_rota_by_camera)
         .premultiply(mat_trans_to_camera.invert());
       break;
     case "s":
-      mat_rota_by_camera = new THREE.Matrix4().makeRotationX(
-        THREE.MathUtils.degToRad(-degree_v_10pixel)
-      );
+      mat_rota_by_camera = Rota_by_camera_X(-degree_v_10pixel);
       box.matrix
         .premultiply(mat_trans_to_camera)
         .premultiply(mat_rota_by_camera)
         .premultiply(mat_trans_to_camera.invert());
-      break;
-
-    //test@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-    case "z":
-      mat_rota_by_camera = Rota_by_camera_Z(degree_v_10pixel);
-      box.matrix
-        .premultiply(mat_trans_to_camera)
-        .premultiply(mat_rota_by_camera)
-        .premultiply(mat_trans_to_camera.invert());
-
-      break;
-
-    case "x":
-      mat_rota_by_camera = Rota_by_camera_Z(15);
-      // mat_rota_by_camera = Rota_by_camera_Z(degree_h_10pixel);
-      box.matrix
-        // .premultiply(mat_trans_to_camera)
-        .premultiply(mat_rota_by_camera);
-      // .premultiply(mat_trans_to_camera.invert());
-      console.log(mat_trans_to_camera);
       break;
   }
 });
