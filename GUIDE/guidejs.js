@@ -5,7 +5,7 @@ const canvasCtx = canvasElement.getContext("2d");
 
 //import { FACEMESH_FACE_OVAL } from "@mediapipe/face_mesh";
 import * as THREE from "three";
-import { TRIANGULATION } from "./triangulation.js";
+import { TRIANGULATION } from "../resource/triangulation.js";
 import { OrbitControls } from "https://unpkg.com/three@0.133.1/examples/jsm/controls/OrbitControls.js";
 import {
   Lensflare,
