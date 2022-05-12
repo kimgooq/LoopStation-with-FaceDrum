@@ -171,15 +171,15 @@ function onResults2(results) {
         let face_geometry = new THREE.BufferGeometry();
         face_geometry.setAttribute(
           "position",
-          new THREE.BufferAttribute(new Float32Array(landmarks.length * 3), 3) // x, y, z -> length*3
+          new THREE.BufferAttribute(new Float32Array(landmarks.length * 3), 3)
         );
         face_geometry.setAttribute(
           "normal",
-          new THREE.BufferAttribute(new Float32Array(landmarks.length * 3), 3) // x, y, z -> length*3
+          new THREE.BufferAttribute(new Float32Array(landmarks.length * 3), 3)
         );
         face_geometry.setAttribute(
           "uv",
-          new THREE.BufferAttribute(new Float32Array(landmarks.length * 2), 2) // x, y, z -> length*3
+          new THREE.BufferAttribute(new Float32Array(landmarks.length * 2), 2)
         );
         let face_material = new THREE.MeshPhongMaterial({
           color: 0xffffff,
