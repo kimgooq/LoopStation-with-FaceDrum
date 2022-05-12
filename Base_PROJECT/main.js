@@ -6,7 +6,7 @@ document.addEventListener("mousedown", MouseDown, false);
 document.addEventListener("mouseup", MouseUp, false);
 
 import * as THREE from "three";
-import { TRIANGULATION } from "./triangulation.js";
+import { TRIANGULATION } from "../resource/triangulation.js";
 import { OrbitControls } from "https://unpkg.com/three@0.133.1/examples/jsm/controls/OrbitControls.js";
 import { Line2 } from "https://unpkg.com/three@0.133.1/examples/jsm/lines/Line2.js";
 import { LineMaterial } from "https://unpkg.com/three@0.133.1/examples/jsm/lines/LineMaterial.js";
