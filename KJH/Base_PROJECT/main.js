@@ -41,7 +41,7 @@ const camera_world = new THREE.PerspectiveCamera(
   45,
   r_height / r_width,
   1,
-  2000
+  3500
 );
 camera_world.position.set(50, 50, 150);
 camera_world.up.set(0, 1, 0);
@@ -66,9 +66,11 @@ const frustumHeight =
   2.0 * camera_ar.far * Math.tan(THREE.MathUtils.degToRad(camera_ar.fov * 0.5));
 const frustumWidth = frustumHeight * camera_ar.aspect;
 
-const plane_geo = new THREE.PlaneGeometry(frustumWidth, frustumHeight);
+// const plane_geo = new THREE.PlaneGeometry(frustumWidth, frustumHeight);
+const plane_geo = new THREE.PlaneGeometry(r_width, r_height);
 const plane_mat = new THREE.MeshBasicMaterial({ map: video_texture });
 const video_mesh = new THREE.Mesh(plane_geo, plane_mat);
+// video_mesh.position.set(0, 0, camera_ar.position.z - camera_ar.far);
 video_mesh.position.set(0, 0, camera_ar.position.z - camera_ar.far);
 
 scene.add(light);
@@ -224,7 +226,7 @@ function onResults2(results) {
         let pos_ws = new THREE.Vector3(pos_ps.x, pos_ps.y, pos_ps.z).unproject(
           camera_ar
         );
-        pos_ws = ProjScale(pos_ws, camera_ar.position, center_dist, 100.0);
+        pos_ws = ProjScale(pos_ws, camera_ar.position, center_dist, 500.0);
         positions[3 * i + 0] = pos_ws.x;
         positions[3 * i + 1] = pos_ws.y;
         positions[3 * i + 2] = pos_ws.z;
@@ -252,7 +254,7 @@ function onResults2(results) {
         let pos_ws = new THREE.Vector3(pos_ps.x, pos_ps.y, pos_ps.z).unproject(
           camera_ar
         );
-        pos_ws = ProjScale(pos_ws, camera_ar.position, center_dist, 100.0);
+        pos_ws = ProjScale(pos_ws, camera_ar.position, center_dist, 500.0);
 
         face_mesh.geometry.attributes.position.array[3 * i + 0] = pos_ws.x;
         face_mesh.geometry.attributes.position.array[3 * i + 1] = pos_ws.y;
@@ -270,6 +272,13 @@ function onResults2(results) {
       light.target = face_mesh;
     }
   }
+  face_mesh.lookAt(
+    camera_ar.position.x,
+    camera_ar.position.y,
+    camera_ar.position.z
+  );
+  face_mesh.position.set(-100, -100, -50);
+  console.log(face_mesh.rotation);
   scene.remove(light_helper);
   scene.remove(camera_helper);
   renderer.render(scene, camera_ar);
