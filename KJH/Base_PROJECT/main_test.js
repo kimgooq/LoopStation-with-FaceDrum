@@ -82,6 +82,38 @@ scene.add(video_mesh);
 let oval_point_mesh = null;
 let oval_line = null;
 let face_mesh = null;
+
+//face mesh local axis
+// let face_mesh_LocalAxis_X = [
+//   new THREE.Vector3(-40, -100, -480),
+//   new THREE.Vector3(140, -95, -450),
+// ];
+let face_mesh_LocalAxis_X = new THREE.BufferGeometry();
+face_mesh_LocalAxis_X.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(2, 3)
+);
+let face_mesh_LocalAxis_Y = [
+  new THREE.Vector3(0, 0, 0),
+  new THREE.Vector3(0, 0, 0),
+];
+let face_mesh_LocalAxis_Z = [
+  new THREE.Vector3(0, 0, 0),
+  new THREE.Vector3(0, 0, 0),
+];
+const material_axis = new THREE.LineBasicMaterial({ color: 0x0000ff });
+// let LocalAxis_X_geometry = new THREE.BufferGeometry().setFromPoints(
+//   face_mesh_LocalAxis_X
+// );
+
+let LocalAxis_Y_geometry = new THREE.BufferGeometry().setFromPoints(
+  face_mesh_LocalAxis_Y
+);
+let LocalAxisX_line = new THREE.Line(face_mesh_LocalAxis_X, material_axis);
+let LocalAxisY_line = new THREE.Line(LocalAxis_Y_geometry, material_axis);
+
+scene.add(LocalAxisY_line);
+
 //box tmp
 const box_geometry = new THREE.BoxGeometry(30, 30, 30);
 const box_material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
@@ -360,7 +392,17 @@ function onResults2(results) {
         center_dist,
         500.0
       );
+      face_mesh_LocalAxis_X[0] = landmark_left.x;
+      face_mesh_LocalAxis_X[1] = landmark_left.y;
+      face_mesh_LocalAxis_X[2] = landmark_left.z;
 
+      face_mesh_LocalAxis_X[3] = landmark_right.x;
+      face_mesh_LocalAxis_X[4] = landmark_right.y;
+      face_mesh_LocalAxis_X[5] = landmark_right.z;
+      LocalAxisX_line.geometry.attributes.position.needsUpdate = true;
+      scene.add(LocalAxisX_line);
+
+      console.log(face_mesh_LocalAxis_X);
       box_mesh.position.set(pos_root.x, pos_root.y, pos_root.z);
       // box_mesh.position.set(0, 0, 0);
       list_pos_ns_x /= num_points;

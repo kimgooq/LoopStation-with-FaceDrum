@@ -273,12 +273,13 @@ function onResults2(results) {
     }
   }
   face_mesh.lookAt(
-    camera_ar.position.x,
-    camera_ar.position.y,
-    camera_ar.position.z
+    camera_ar.position.x - 100,
+    camera_ar.position.y - 100,
+    camera_ar.position.z + 10
   );
-  face_mesh.position.set(-100, -100, -50);
-  console.log(face_mesh.rotation);
+  // face_mesh.position.set(-100, -100, -50);
+  console.log(face_mesh.position);
+  // console.log(face_mesh.rotation);
   scene.remove(light_helper);
   scene.remove(camera_helper);
   renderer.render(scene, camera_ar);
