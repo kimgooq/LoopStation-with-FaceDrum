@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Metronome</title>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+   <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+   <div class="container">
+      <h3 class="text-center mt-4">Metronome</h3>
+      <h1 class="text-center text-info mt-3 mb-3">100 BPM</h1>
+      <!-- <input class="form-control" type="range" id="bpm" min="40" max="220" value="100" /> -->
+      <audio id="sound" src="/matro.wav"></audio>
+      <button class="btn btn-primary btn-block mt-4" id="startBtn">Start</button>
+   </div>
+   <section class="app">
+    <div class="visual"></div>
+    <div class="pads">
+      <div class="pad1">
+        <audio src="/BP_Cym_5.wav" class="sound"></audio>
+      </div>
+      <div class="pad2">
+        <audio class="sound">
+          <source src="/LIT1_Kick_6.wav" />
+        </audio>
+      </div>
+      <div class="pad3">
+        <audio class="sound">
+          <source src="/NS1_Clap_9.wav" />
+        </audio>
+      </div>
+      <div class="pad4">
+        <audio class="sound">
+          <source src="/SB_Snap_3.wav" />
+        </audio>
+      </div>
+      <div class="pad5">
+        <audio class="sound">
+          <source src="/SB_Vox_1.wav" />
+        </audio>
+      </div>
+      </div>
+    </div>
+  </section>
+</body>
+<script src="/matnsound.js"></script>
+
+</html>
