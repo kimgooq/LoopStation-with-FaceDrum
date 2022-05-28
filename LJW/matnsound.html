@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Metronome</title>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+   <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+   <div class="container">
+      <h3 class="text-center mt-4">Metronome</h3>
+      <h1 class="text-center text-info mt-3 mb-3">60 BPM</h1>
+      <input class="form-control" type="range" id="bpm" min="40" max="220" value="60" />
+      <audio id="sound" src="/matro.wav"></audio>
+      <button class="btn btn-primary btn-block mt-4" id="startBtn">Start</button>
+   </div>
+   <section class="app">
+    <div class="visual"></div>
+    <div class="pads">
+      <div class="pad1">
+        <audio src="/BP_Cym_5.wav" class="sound"></audio>
+      </div>
+      <div class="pad2">
+        <audio class="sound">
+          <source src="/LIT1_Kick_6.wav" />
+        </audio>
+      </div>
+      <div class="pad3">
+        <audio class="sound">
+          <source src="/NS1_Clap_9.wav" />
+        </audio>
+      </div>
+      <div class="pad4">
+        <audio class="sound">
+          <source src="/SB_Snap_3.wav" />
+        </audio>
+      </div>
+      <div class="pad5">
+        <audio class="sound">
+          <source src="/SB_Vox_1.wav" />
+        </audio>
+      </div>
+      <div class="pad6">
+        <audio class="sound">
+          <source src="./sounds/ufo.mp3" />
+        </audio>
+      </div>
+    </div>
+  </section>
+</body>
+
+<script>
+const startBtn = document.querySelector('#startBtn');
+const sound = document.querySelector('#sound');
+const bpm = document.querySelector('#bpm');
+const title = document.querySelector('h1');
+let timer = null;
+let nowBpm = 60;
+let isPlay = false;
+ 
+bpm.addEventListener('change', (e) => {
+   title.innerHTML = e.target.value + ' BPM';
+   nowBpm = parseInt(e.target.value);
+   if (isPlay) {
+      clearInterval(timer);
+      timer = setInterval(playSound, realBpm(nowBpm));
+   }
+});
+ 
+startBtn.addEventListener('click', () => {
+   if (isPlay) {
+      clearInterval(timer);
+      changeBtn();            
+   } else {
+      changeBtn();
+      playSound();
+      timer = setInterval(playSound, realBpm(nowBpm));            
+   }
+   isPlay = !isPlay;
+});
+ 
+function playSound() {
+   sound.currentTime = 0;
+   sound.play();
+}
+ 
+function changeBtn() {
+   if(startBtn.innerHTML === 'Start') {
+      startBtn.innerHTML = 'Stop';
+      startBtn.classList.remove('btn-primary');
+      startBtn.classList.add('btn-danger');
+   } else {
+      startBtn.innerHTML = 'Start';
+      startBtn.classList.remove('btn-danger');
+      startBtn.classList.add('btn-primary');         
+   }
+}
+ 
+function realBpm(bpm) {
+   return (60 * 1000) / bpm;
+}
+
+window.addEventListener("load", () => {
+  const sounds = document.querySelectorAll(".sound");
+  const pads = document.querySelectorAll(".pads div");
+  const visual = document.querySelector(".visual");
+  const colors = [
+    "#60d394",
+    "#d36060",
+    "#c060d3",
+    "#d3d160",
+    "#606bd3",
+    "#60c2d3"
+  ];
+
+  pads.forEach((pad, index) => {
+    pad.addEventListener("click", function() {
+      sounds[index].currentTime = 0;
+      sounds[index].play();
+    });
+  });
+});
+</script>
+</html>
