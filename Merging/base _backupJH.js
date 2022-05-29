@@ -22,7 +22,9 @@ let ends = null,
 let interval;
 
 function startDrum() {
-  if (isPlay == false) {
+  if (isPlay) {
+    clearInterval(interval);
+  } else {
     timestarter = new Date();
     interval = setInterval(function () {
       console.log(count);
@@ -36,15 +38,8 @@ function startDrum() {
       }
       count++;
     }, (60 * 1000) / 80); // bpm
-    isPlay = !isPlay;
   }
-}
-
-function StopDrum() {
-  if (isPlay == true) {
-    clearInterval(interval);
-    isPlay = !isPlay;
-  }
+  isPlay = !isPlay;
 }
 
 function DrumPlay(index) {
@@ -280,7 +275,7 @@ text_loader.load("./DH_light.json", function (font) {
   const font_material = new THREE.MeshPhongMaterial({ color: 0xffffff });
   const red_font_material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
   // group_text.matrixAutoUpdate = true;
-  // scene.add(group_text);
+  scene.add(group_text);
   text_materials = [font_material, font_material];
   red_text_materials = [red_font_material, red_font_material];
   textMesh_left_808 = new THREE.Mesh(text_geometry_left808, text_materials);
@@ -366,7 +361,7 @@ function ProjScale(p_ms, cam_pos, src_d, dst_d) {
 const box_geometry = new THREE.BoxGeometry(8, 8, 8);
 const box_material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 const box_mesh = new THREE.Mesh(box_geometry, box_material);
-// scene.add(box_mesh);
+scene.add(box_mesh);
 
 const myGesture = {
   gesture: "",
@@ -400,18 +395,6 @@ function onResults2(results) {
         myGesture.gesture = getGesture(landmarks_hand);
         if (myGesture.gesture == "One") {
           startDrum();
-        }
-        if (myGesture.gesture == "Two") {
-          StopDrum();
-        }
-        if (myGesture.gesture == "Three") {
-          ResetDrumSound();
-        }
-        if (myGesture.gesture == "ThumbDOWN") {
-          audio_metronome.muted = true;
-        }
-        if (myGesture.gesture == "ThumbUP") {
-          audio_metronome.muted = false;
         }
       }
     }
@@ -495,21 +478,21 @@ function onResults2(results) {
         new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
       );
       const LocalAxis_X_material = new THREE.LineBasicMaterial({
-        color: 0xff0000,
+        color: 0x00ffff,
       });
       const LocalAxis_Y_material = new THREE.LineBasicMaterial({
-        color: 0x00ff00,
+        color: 0xff00ff,
       });
       const LocalAxis_Z_material = new THREE.LineBasicMaterial({
         color: 0x0000ff,
       });
       axis_X = new THREE.Line(LocalAxis_X_geo, LocalAxis_X_material);
       axis_Y = new THREE.Line(LocalAxis_Y_geo, LocalAxis_Y_material);
-      // axis_Z = new THREE.Line(LocalAxis_Z_geo, LocalAxis_Z_material);
+      axis_Z = new THREE.Line(LocalAxis_Z_geo, LocalAxis_Z_material);
 
       scene.add(face_mesh);
-      scene.add(axis_X);
-      scene.add(axis_Y);
+      // scene.add(axis_X);
+      // scene.add(axis_Y);
       // scene.add(axis_Z);
     }
 
@@ -790,7 +773,7 @@ function onResults2(results) {
 
     axis_X.geometry.attributes.position.needsUpdate = true;
     axis_Y.geometry.attributes.position.needsUpdate = true;
-    // axis_Z.geometry.attributes.position.needsUpdate = true;
+    axis_Z.geometry.attributes.position.needsUpdate = true;
 
     let texure_frame = new THREE.CanvasTexture(results.image);
     face_mesh.material.map = texure_frame;

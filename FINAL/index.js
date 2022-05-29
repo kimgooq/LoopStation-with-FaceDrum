@@ -139,7 +139,7 @@ const camera_helper = new THREE.CameraHelper(camera_ar);
 const renderer_world = new THREE.WebGLRenderer();
 renderer_world.setSize(r_width, r_height);
 renderer_world.setViewport(0, 0, r_width, r_height);
-document.body.appendChild(renderer_world.domElement);
+// document.body.appendChild(renderer_world.domElement);
 
 // camera_world
 const camera_world = new THREE.PerspectiveCamera(
@@ -159,9 +159,9 @@ ambientlight.position.set(0, 0, camera_ar.near);
 const light_helper = new THREE.DirectionalLightHelper(light, 0);
 
 // orbitcontrols
-const controls = new OrbitControls(camera_world, renderer_world.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.1;
+// const controls = new OrbitControls(camera_world, renderer_world.domElement);
+// controls.enableDamping = true;
+// controls.dampingFactor = 0.1;
 
 // raycaster
 const mouse = new THREE.Vector2();
@@ -280,7 +280,7 @@ text_loader.load("./DH_light.json", function (font) {
   const font_material = new THREE.MeshPhongMaterial({ color: 0xffffff });
   const red_font_material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
   // group_text.matrixAutoUpdate = true;
-  // scene.add(group_text);
+  scene.add(group_text);
   text_materials = [font_material, font_material];
   red_text_materials = [red_font_material, red_font_material];
   textMesh_left_808 = new THREE.Mesh(text_geometry_left808, text_materials);
@@ -305,9 +305,9 @@ text_loader.load("./DH_light.json", function (font) {
 });
 
 scene.add(light);
-scene.add(ambientlight);
-scene.add(light_helper);
-scene.add(camera_helper);
+// scene.add(ambientlight);
+// scene.add(light_helper);
+// scene.add(camera_helper);
 scene.add(video_mesh);
 
 let face_mesh = null;
@@ -495,21 +495,21 @@ function onResults2(results) {
         new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
       );
       const LocalAxis_X_material = new THREE.LineBasicMaterial({
-        color: 0xff0000,
+        color: 0x00ffff,
       });
       const LocalAxis_Y_material = new THREE.LineBasicMaterial({
-        color: 0x00ff00,
+        color: 0xff00ff,
       });
       const LocalAxis_Z_material = new THREE.LineBasicMaterial({
         color: 0x0000ff,
       });
       axis_X = new THREE.Line(LocalAxis_X_geo, LocalAxis_X_material);
       axis_Y = new THREE.Line(LocalAxis_Y_geo, LocalAxis_Y_material);
-      // axis_Z = new THREE.Line(LocalAxis_Z_geo, LocalAxis_Z_material);
+      axis_Z = new THREE.Line(LocalAxis_Z_geo, LocalAxis_Z_material);
 
-      scene.add(face_mesh);
-      scene.add(axis_X);
-      scene.add(axis_Y);
+      // scene.add(face_mesh);
+      // scene.add(axis_X);
+      // scene.add(axis_Y);
       // scene.add(axis_Z);
     }
 
@@ -790,7 +790,7 @@ function onResults2(results) {
 
     axis_X.geometry.attributes.position.needsUpdate = true;
     axis_Y.geometry.attributes.position.needsUpdate = true;
-    // axis_Z.geometry.attributes.position.needsUpdate = true;
+    axis_Z.geometry.attributes.position.needsUpdate = true;
 
     let texure_frame = new THREE.CanvasTexture(results.image);
     face_mesh.material.map = texure_frame;
@@ -803,8 +803,8 @@ function onResults2(results) {
 
   scene.add(light_helper);
   scene.add(camera_helper);
-  renderer_world.render(scene, camera_world);
-  controls.update();
+  // renderer_world.render(scene, camera_world);
+  // controls.update();
 
   canvasCtx.restore();
 }
