@@ -211,6 +211,9 @@ const box_mesh = new THREE.Mesh(box_geometry, box_material);
 scene.add(box_mesh);
 
 function onResults2(results) {
+  // console.log(results);
+
+  // console.log("arr", array);
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   canvasCtx.drawImage(
@@ -220,293 +223,296 @@ function onResults2(results) {
     canvasElement.width,
     canvasElement.height
   );
+  // canvasCtx.globalCompositeOperation = "source-in";
 
-  if (results.multiFaceLandmarks) {
-    for (const landmarks of results.multiFaceLandmarks) {
-      // drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, {
-      //   color: "#C0C0C070",
-      //   lineWidth: 1,
-      // });
-      // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, {
-      //   color: "#FF3030",
-      // });
-      // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYEBROW, {
-      //   color: "#FF3030",
-      // });
-      // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_IRIS, {
-      //   color: "#FF3030",
-      // });
-      // drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, {
-      //   color: "#30FF30",
-      // });
-      // drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYEBROW, {
-      //   color: "#30FF30",
-      // });
-      // drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_IRIS, {
-      //   color: "#30FF30",
-      // });
-      // drawConnectors(canvasCtx, landmarks, FACEMESH_FACE_OVAL, {
-      //   color: "#E0E0E0",
-      // });
-      // drawConnectors(canvasCtx, landmarks, FACEMESH_LIPS, { color: "#E0E0E0" });
+  if (results.faceLandmarks) {
+    // multiFaceLandmarks
+    const landmarks = results.faceLandmarks;
+    // console.log(landmarks);
+    // console.log(landmarks);
+    // drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, {
+    //   color: "#C0C0C070",
+    //   lineWidth: 1,
+    // });
+    // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, {
+    //   color: "#FF3030",
+    // });
+    // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYEBROW, {
+    //   color: "#FF3030",
+    // });
+    // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_IRIS, {
+    //   color: "#FF3030",
+    // });
+    // drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, {
+    //   color: "#30FF30",
+    // });
+    // drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYEBROW, {
+    //   color: "#30FF30",
+    // });
+    // drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_IRIS, {
+    //   color: "#30FF30",
+    // });
+    // drawConnectors(canvasCtx, landmarks, FACEMESH_FACE_OVAL, {
+    //   color: "#E0E0E0",
+    // });
+    // drawConnectors(canvasCtx, landmarks, FACEMESH_LIPS, { color: "#E0E0E0" });
 
-      if (face_mesh == null) {
-        // face_mesh setAttribute
-        let face_geometry = new THREE.BufferGeometry();
-        face_geometry.setAttribute(
-          "position",
-          new THREE.BufferAttribute(new Float32Array(landmarks.length * 3), 3)
-        );
-        face_geometry.setAttribute(
-          "normal",
-          new THREE.BufferAttribute(new Float32Array(landmarks.length * 3), 3)
-        );
-        face_geometry.setAttribute(
-          "uv",
-          new THREE.BufferAttribute(new Float32Array(landmarks.length * 2), 2)
-        );
-        let face_material = new THREE.MeshPhongMaterial({
-          color: 0xffffff,
-          specular: new THREE.Color(0, 0, 0),
-          shininess: 100,
-        });
-        face_mesh = new THREE.Mesh(face_geometry, face_material);
-        face_mesh.geometry.setIndex(TRIANGULATION);
-
-        // face_mesh local Axis
-        let LocalAxis_X_geo = new THREE.BufferGeometry();
-        let LocalAxis_Y_geo = new THREE.BufferGeometry();
-        let LocalAxis_Z_geo = new THREE.BufferGeometry();
-        LocalAxis_X_geo.setAttribute(
-          "position",
-          new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
-        );
-        LocalAxis_Y_geo.setAttribute(
-          "position",
-          new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
-        );
-        LocalAxis_Z_geo.setAttribute(
-          "position",
-          new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
-        );
-        const LocalAxis_X_material = new THREE.LineBasicMaterial({
-          color: 0x00ffff,
-        });
-        const LocalAxis_Y_material = new THREE.LineBasicMaterial({
-          color: 0xff00ff,
-        });
-        const LocalAxis_Z_material = new THREE.LineBasicMaterial({
-          color: 0x0000ff,
-        });
-        axis_X = new THREE.Line(LocalAxis_X_geo, LocalAxis_X_material);
-        axis_Y = new THREE.Line(LocalAxis_Y_geo, LocalAxis_Y_material);
-        axis_Z = new THREE.Line(LocalAxis_Z_geo, LocalAxis_Z_material);
-
-        scene.add(face_mesh);
-        scene.add(axis_X);
-        scene.add(axis_Y);
-        scene.add(axis_Z);
-      }
-
-      const p_c = new THREE.Vector3(0, 0, 0).unproject(camera_ar);
-      const vec_cam2center = new THREE.Vector3().subVectors(
-        p_c,
-        camera_ar.position
+    if (face_mesh == null) {
+      // face_mesh setAttribute
+      let face_geometry = new THREE.BufferGeometry();
+      face_geometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(new Float32Array(landmarks.length * 3), 3)
       );
-      const center_dist = vec_cam2center.length();
-
-      // landmark for vector representing local axis
-      //   let landmark_top = GetPS(landmarks[10]);
-      //   let landmark_bottom = GetPS(landmarks[152]);
-      //   let landmark_left = GetPS(landmarks[234]);
-      //   let landmark_right = GetPS(landmarks[454]);
-
-      // Draw face_mesh & Local Axis
-      const num_points = landmarks.length;
-      for (let i = 0; i < num_points; i++) {
-        const pos_ns = landmarks[i];
-        let pos_ws = landmark2WS(pos_ns, camera_ar);
-
-        face_mesh.geometry.attributes.position.array[3 * i + 0] = pos_ws.x;
-        face_mesh.geometry.attributes.position.array[3 * i + 1] = pos_ws.y;
-        face_mesh.geometry.attributes.position.array[3 * i + 2] = pos_ws.z;
-        face_mesh.geometry.attributes.uv.array[2 * i + 0] = pos_ns.x;
-        face_mesh.geometry.attributes.uv.array[2 * i + 1] = 1.0 - pos_ns.y;
-      }
-      // wink
-      let vec_left_eye_height = new THREE.Vector3(
-        landmarks[159].x - landmarks[145].x,
-        landmarks[159].y - landmarks[145].y,
-        landmarks[159].z - landmarks[145].z
+      face_geometry.setAttribute(
+        "normal",
+        new THREE.BufferAttribute(new Float32Array(landmarks.length * 3), 3)
       );
-      let vec_left_eye_width = new THREE.Vector3(
-        landmarks[133].x - landmarks[33].x,
-        landmarks[133].y - landmarks[33].y,
-        landmarks[133].z - landmarks[33].z
+      face_geometry.setAttribute(
+        "uv",
+        new THREE.BufferAttribute(new Float32Array(landmarks.length * 2), 2)
       );
+      let face_material = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        specular: new THREE.Color(0, 0, 0),
+        shininess: 100,
+      });
+      face_mesh = new THREE.Mesh(face_geometry, face_material);
+      face_mesh.geometry.setIndex(TRIANGULATION);
 
-      let vec_right_eye_height = new THREE.Vector3(
-        landmarks[386].x - landmarks[374].x,
-        landmarks[386].y - landmarks[374].y,
-        landmarks[386].z - landmarks[374].z
+      // face_mesh local Axis
+      let LocalAxis_X_geo = new THREE.BufferGeometry();
+      let LocalAxis_Y_geo = new THREE.BufferGeometry();
+      let LocalAxis_Z_geo = new THREE.BufferGeometry();
+      LocalAxis_X_geo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
       );
-      let vec_right_eye_width = new THREE.Vector3(
-        landmarks[263].x - landmarks[362].x,
-        landmarks[263].y - landmarks[362].y,
-        landmarks[263].z - landmarks[362].z
+      LocalAxis_Y_geo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
       );
-      // vec_left_eye = landmark2WSwithoutTranslation(vec_left_eye, camera_ar);
-      const dis_left_eye =
-        vec_left_eye_height.length() / vec_left_eye_width.length();
-      const dis_right_eye =
-        vec_right_eye_height.length() / vec_right_eye_width.length();
-      // console.log(dis_left_eye);
-      let lefteye_Isopened = 1;
-      let righteye_Isclosed = 1;
-      // for wink detection, must check other eye is enough opened
-      if (dis_left_eye < 0.075 && dis_right_eye > 0.25) {
-        lefteye_Isopened = -1;
-      } else if (dis_right_eye < 0.075 && dis_left_eye > 0.25) {
-        righteye_Isclosed = -1;
-      }
-      let Iswink = lefteye_Isopened * righteye_Isclosed;
-      if (Iswink < 0) {
-        console.log("wink");
-      }
-
-      // mouth
-      let vec_mouth_height = new THREE.Vector3(
-        landmarks[0].x - landmarks[17].x,
-        landmarks[0].y - landmarks[17].y,
-        landmarks[0].z - landmarks[17].z
+      LocalAxis_Z_geo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
       );
-      let vec_mouth_width = new THREE.Vector3(
-        landmarks[291].x - landmarks[61].x,
-        landmarks[291].y - landmarks[61].y,
-        landmarks[291].z - landmarks[61].z
-      );
-      const dis_mouth = vec_mouth_height.length() / vec_mouth_width.length();
-      if (dis_mouth > 1.2) {
-        console.log("A");
-      }
-      // box_mesh.position.set(pos_iris.x, pos_iris.y, pos_iris.z);
+      const LocalAxis_X_material = new THREE.LineBasicMaterial({
+        color: 0x00ffff,
+      });
+      const LocalAxis_Y_material = new THREE.LineBasicMaterial({
+        color: 0xff00ff,
+      });
+      const LocalAxis_Z_material = new THREE.LineBasicMaterial({
+        color: 0x0000ff,
+      });
+      axis_X = new THREE.Line(LocalAxis_X_geo, LocalAxis_X_material);
+      axis_Y = new THREE.Line(LocalAxis_Y_geo, LocalAxis_Y_material);
+      axis_Z = new THREE.Line(LocalAxis_Z_geo, LocalAxis_Z_material);
 
-      // make Local Axis for vector representing face_mesh local axis
-      let landmark_top = landmark2WS(landmarks[10], camera_ar);
-      let landmark_bottom = landmark2WS(landmarks[152], camera_ar);
-      let landmark_left = landmark2WS(landmarks[234], camera_ar); //234 105
-      let landmark_right = landmark2WS(landmarks[454], camera_ar); //454 334
-      let pos_root = new THREE.Vector3(
-        (landmark_top.x +
-          landmark_bottom.x +
-          landmark_right.x +
-          landmark_left.x) /
-          4,
-        (landmark_top.y +
-          landmark_bottom.y +
-          landmark_right.y +
-          landmark_left.y) /
-          4,
-        (landmark_top.z +
-          landmark_bottom.z +
-          landmark_right.z +
-          landmark_left.z) /
-          4
-      );
-      group_text.position.x = pos_root.x;
-      group_text.position.y = pos_root.y;
-      group_text.position.z = pos_root.z;
-      // left 50 right 280
-      axis_X.geometry.attributes.position.array[0] = landmark_left.x;
-      axis_X.geometry.attributes.position.array[1] = landmark_left.y;
-      axis_X.geometry.attributes.position.array[2] = landmark_left.z;
-      axis_X.geometry.attributes.position.array[3] = landmark_right.x;
-      axis_X.geometry.attributes.position.array[4] = landmark_right.y;
-      axis_X.geometry.attributes.position.array[5] = landmark_right.z;
-
-      axis_Y.geometry.attributes.position.array[0] = landmark_bottom.x;
-      axis_Y.geometry.attributes.position.array[1] = landmark_bottom.y;
-      axis_Y.geometry.attributes.position.array[2] = landmark_bottom.z;
-      axis_Y.geometry.attributes.position.array[3] = landmark_top.x;
-      axis_Y.geometry.attributes.position.array[4] = landmark_top.y;
-      axis_Y.geometry.attributes.position.array[5] = landmark_top.z;
-      //   console.log(axis_X);
-      let vec_axis_X = new THREE.Vector3(
-        landmark_right.x - landmark_left.x,
-        landmark_right.y - landmark_left.y,
-        landmark_right.z - landmark_left.z
-      );
-
-      let vec_axis_X_RotateY = new THREE.Vector3(
-        landmark_right.x - landmark_left.x,
-        0,
-        landmark_right.z - landmark_left.z
-      );
-      let vec_axis_X_RotateZ = new THREE.Vector3(
-        landmark_right.x - landmark_left.x,
-        landmark_right.y - landmark_left.y,
-        0
-      );
-      let vec_axis_Y_RotateX = new THREE.Vector3(
-        0,
-        landmark_top.y - landmark_bottom.y,
-        landmark_top.z - landmark_bottom.z
-      );
-
-      // roll
-      let orientation_X = origin_axis_Y.angleTo(vec_axis_Y_RotateX);
-      if (vec_axis_Y_RotateX.z < 0) {
-        orientation_X *= -1;
-      }
-      // pitch
-      let orientation_Y = origin_axis_X.angleTo(vec_axis_X_RotateY);
-      if (vec_axis_X_RotateY.z > 0) {
-        orientation_Y *= -1;
-      }
-      // yaw
-      let orientation_Z = origin_axis_X.angleTo(vec_axis_X_RotateZ);
-      if (vec_axis_X_RotateZ.y < 0) {
-        orientation_Z *= -1;
-      }
-
-      textMesh.position.x = -175 - vec_axis_X.length() / 2;
-      group_text.setRotationFromEuler(
-        new THREE.Euler(orientation_X, orientation_Y, orientation_Z, "XYZ")
-      );
-
-      // degree 20 30 38
-      if (orientation_X > 0.349) {
-        console.log("down");
-      }
-      if (orientation_X < -0.349) {
-        console.log("up");
-      }
-      if (orientation_Y > 0.52) {
-        console.log("right");
-      }
-      if (orientation_Y < -0.52) {
-        console.log("left");
-      }
-      if (orientation_Z > 0.66) {
-        console.log("left shake");
-      }
-      if (orientation_Z < -0.66) {
-        console.log("right shake");
-      }
-
-      face_mesh.geometry.attributes.position.needsUpdate = true;
-      face_mesh.geometry.attributes.uv.needsUpdate = true;
-      face_mesh.geometry.computeVertexNormals();
-
-      axis_X.geometry.attributes.position.needsUpdate = true;
-      axis_Y.geometry.attributes.position.needsUpdate = true;
-      axis_Z.geometry.attributes.position.needsUpdate = true;
-
-      let texure_frame = new THREE.CanvasTexture(results.image);
-      face_mesh.material.map = texure_frame;
-
-      light.target = face_mesh;
+      scene.add(face_mesh);
+      scene.add(axis_X);
+      scene.add(axis_Y);
+      scene.add(axis_Z);
     }
+
+    const p_c = new THREE.Vector3(0, 0, 0).unproject(camera_ar);
+    const vec_cam2center = new THREE.Vector3().subVectors(
+      p_c,
+      camera_ar.position
+    );
+    const center_dist = vec_cam2center.length();
+
+    // landmark for vector representing local axis
+    //   let landmark_top = GetPS(landmarks[10]);
+    //   let landmark_bottom = GetPS(landmarks[152]);
+    //   let landmark_left = GetPS(landmarks[234]);
+    //   let landmark_right = GetPS(landmarks[454]);
+
+    // Draw face_mesh & Local Axis
+    const num_points = landmarks.length;
+    for (let i = 0; i < num_points; i++) {
+      const pos_ns = landmarks[i];
+      let pos_ws = landmark2WS(pos_ns, camera_ar);
+
+      face_mesh.geometry.attributes.position.array[3 * i + 0] = pos_ws.x;
+      face_mesh.geometry.attributes.position.array[3 * i + 1] = pos_ws.y;
+      face_mesh.geometry.attributes.position.array[3 * i + 2] = pos_ws.z;
+      face_mesh.geometry.attributes.uv.array[2 * i + 0] = pos_ns.x;
+      face_mesh.geometry.attributes.uv.array[2 * i + 1] = pos_ns.y; // 1.0 - pos_ns.y;
+    }
+    // wink
+    let vec_left_eye_height = new THREE.Vector3(
+      landmarks[159].x - landmarks[145].x,
+      landmarks[159].y - landmarks[145].y,
+      landmarks[159].z - landmarks[145].z
+    );
+    let vec_left_eye_width = new THREE.Vector3(
+      landmarks[133].x - landmarks[33].x,
+      landmarks[133].y - landmarks[33].y,
+      landmarks[133].z - landmarks[33].z
+    );
+
+    let vec_right_eye_height = new THREE.Vector3(
+      landmarks[386].x - landmarks[374].x,
+      landmarks[386].y - landmarks[374].y,
+      landmarks[386].z - landmarks[374].z
+    );
+    let vec_right_eye_width = new THREE.Vector3(
+      landmarks[263].x - landmarks[362].x,
+      landmarks[263].y - landmarks[362].y,
+      landmarks[263].z - landmarks[362].z
+    );
+    // vec_left_eye = landmark2WSwithoutTranslation(vec_left_eye, camera_ar);
+    const dis_left_eye =
+      vec_left_eye_height.length() / vec_left_eye_width.length();
+    const dis_right_eye =
+      vec_right_eye_height.length() / vec_right_eye_width.length();
+    // console.log(dis_left_eye);
+    let lefteye_Isopened = 1;
+    let righteye_Isclosed = 1;
+    // for wink detection, must check other eye is enough opened
+    if (dis_left_eye < 0.075 && dis_right_eye > 0.25) {
+      lefteye_Isopened = -1;
+    } else if (dis_right_eye < 0.075 && dis_left_eye > 0.25) {
+      righteye_Isclosed = -1;
+    }
+    let Iswink = lefteye_Isopened * righteye_Isclosed;
+    if (Iswink < 0) {
+      console.log("wink");
+    }
+
+    // mouth
+    let vec_mouth_height = new THREE.Vector3(
+      landmarks[0].x - landmarks[17].x,
+      landmarks[0].y - landmarks[17].y,
+      landmarks[0].z - landmarks[17].z
+    );
+    let vec_mouth_width = new THREE.Vector3(
+      landmarks[291].x - landmarks[61].x,
+      landmarks[291].y - landmarks[61].y,
+      landmarks[291].z - landmarks[61].z
+    );
+    const dis_mouth = vec_mouth_height.length() / vec_mouth_width.length();
+    if (dis_mouth > 1.2) {
+      console.log("A");
+    }
+    // box_mesh.position.set(pos_iris.x, pos_iris.y, pos_iris.z);
+
+    // make Local Axis for vector representing face_mesh local axis
+    let landmark_top = landmark2WS(landmarks[10], camera_ar);
+    let landmark_bottom = landmark2WS(landmarks[152], camera_ar);
+    let landmark_left = landmark2WS(landmarks[234], camera_ar); //234 105
+    let landmark_right = landmark2WS(landmarks[454], camera_ar); //454 334
+    let pos_root = new THREE.Vector3(
+      (landmark_top.x +
+        landmark_bottom.x +
+        landmark_right.x +
+        landmark_left.x) /
+        4,
+      (landmark_top.y +
+        landmark_bottom.y +
+        landmark_right.y +
+        landmark_left.y) /
+        4,
+      (landmark_top.z +
+        landmark_bottom.z +
+        landmark_right.z +
+        landmark_left.z) /
+        4
+    );
+    group_text.position.x = pos_root.x;
+    group_text.position.y = pos_root.y;
+    group_text.position.z = pos_root.z;
+    // left 50 right 280
+    axis_X.geometry.attributes.position.array[0] = landmark_left.x;
+    axis_X.geometry.attributes.position.array[1] = landmark_left.y;
+    axis_X.geometry.attributes.position.array[2] = landmark_left.z;
+    axis_X.geometry.attributes.position.array[3] = landmark_right.x;
+    axis_X.geometry.attributes.position.array[4] = landmark_right.y;
+    axis_X.geometry.attributes.position.array[5] = landmark_right.z;
+
+    axis_Y.geometry.attributes.position.array[0] = landmark_bottom.x;
+    axis_Y.geometry.attributes.position.array[1] = landmark_bottom.y;
+    axis_Y.geometry.attributes.position.array[2] = landmark_bottom.z;
+    axis_Y.geometry.attributes.position.array[3] = landmark_top.x;
+    axis_Y.geometry.attributes.position.array[4] = landmark_top.y;
+    axis_Y.geometry.attributes.position.array[5] = landmark_top.z;
+    //   console.log(axis_X);
+    let vec_axis_X = new THREE.Vector3(
+      landmark_right.x - landmark_left.x,
+      landmark_right.y - landmark_left.y,
+      landmark_right.z - landmark_left.z
+    );
+
+    let vec_axis_X_RotateY = new THREE.Vector3(
+      landmark_right.x - landmark_left.x,
+      0,
+      landmark_right.z - landmark_left.z
+    );
+    let vec_axis_X_RotateZ = new THREE.Vector3(
+      landmark_right.x - landmark_left.x,
+      landmark_right.y - landmark_left.y,
+      0
+    );
+    let vec_axis_Y_RotateX = new THREE.Vector3(
+      0,
+      landmark_top.y - landmark_bottom.y,
+      landmark_top.z - landmark_bottom.z
+    );
+
+    // roll
+    let orientation_X = origin_axis_Y.angleTo(vec_axis_Y_RotateX);
+    if (vec_axis_Y_RotateX.z < 0) {
+      orientation_X *= -1;
+    }
+    // pitch
+    let orientation_Y = origin_axis_X.angleTo(vec_axis_X_RotateY);
+    if (vec_axis_X_RotateY.z > 0) {
+      orientation_Y *= -1;
+    }
+    // yaw
+    let orientation_Z = origin_axis_X.angleTo(vec_axis_X_RotateZ);
+    if (vec_axis_X_RotateZ.y < 0) {
+      orientation_Z *= -1;
+    }
+
+    textMesh.position.x = -175 - vec_axis_X.length() / 2;
+    group_text.setRotationFromEuler(
+      new THREE.Euler(orientation_X, orientation_Y, orientation_Z, "XYZ")
+    );
+
+    // degree 20 30 38
+    if (orientation_X > 0.349) {
+      console.log("down");
+    }
+    if (orientation_X < -0.349) {
+      console.log("up");
+    }
+    if (orientation_Y > 0.52) {
+      console.log("right");
+    }
+    if (orientation_Y < -0.52) {
+      console.log("left");
+    }
+    if (orientation_Z > 0.66) {
+      console.log("left shake");
+    }
+    if (orientation_Z < -0.66) {
+      console.log("right shake");
+    }
+
+    face_mesh.geometry.attributes.position.needsUpdate = true;
+    face_mesh.geometry.attributes.uv.needsUpdate = true;
+    face_mesh.geometry.computeVertexNormals();
+
+    axis_X.geometry.attributes.position.needsUpdate = true;
+    axis_Y.geometry.attributes.position.needsUpdate = true;
+    axis_Z.geometry.attributes.position.needsUpdate = true;
+
+    let texure_frame = new THREE.CanvasTexture(results.image);
+    face_mesh.material.map = texure_frame;
+
+    light.target = face_mesh;
   }
   scene.remove(light_helper);
   scene.remove(camera_helper);
@@ -521,23 +527,27 @@ function onResults2(results) {
 }
 
 //  Get faceMesh
-const faceMesh = new FaceMesh({
+const holistic = new Holistic({
   locateFile: (file) => {
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+    return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`;
   },
 });
 
-faceMesh.setOptions({
-  maxNumFaces: 1,
-  refineLandmarks: true,
+holistic.setOptions({
+  modelComplexity: 1,
+  smoothLandmarks: true,
+  enableSegmentation: true,
+  smoothSegmentation: true,
+  refineFaceLandmarks: true,
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5,
 });
-faceMesh.onResults(onResults2);
+console.log(holistic);
+holistic.onResults(onResults2);
 
 const camera = new Camera(videoElement, {
   onFrame: async () => {
-    await faceMesh.send({ image: videoElement });
+    await holistic.send({ image: videoElement });
   },
   width: r_width,
   height: r_height,
