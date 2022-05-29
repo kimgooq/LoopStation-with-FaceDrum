@@ -1,66 +1,55 @@
 const startBtn = document.querySelector('#startBtn');
-// const sound = document.querySelector('#sound');
 const sound = document.getElementById('sound');
+const resetBtn = document.getElementById('resetBtn');
 const bpm = document.querySelector('#bpm');
 const title = document.querySelector('h1');
-let timer = null;
-let nowBpm = 100;
+
 let isPlay = false;
-let matarray = [];
-
-
-// bpm.addEventListener('change', (e) => {
-//    title.innerHTML = e.target.value + ' BPM';
-//    nowBpm = parseInt(e.target.value);
-//    if (isPlay) {
-//       clearInterval(timer);
-//       timer = setInterval(playSound, realBpm(nowBpm));
-//    }
-// });
- 
 let count = 1;
 let interval;
-let starts = null, ends = null;
-let timestarter = null;
+let ends = null, timestarter = null;
 
 startBtn.addEventListener('click', () => {
-   if (isPlay) {
-      clearInterval(interval);
-      changeBtn();            
-   } else {
-      changeBtn();
-    //   playSound();
-    //   timer = setInterval(playSound, realBpm(100));
-    timestarter = new Date();
-    interval = setInterval(function(){
+    if (isPlay) {
+        clearInterval(interval);
+        changeBtn();  
+        for(let j=0; j< pada.length;j++){
+            clearTimeout(clpada[j]);
+        };
+        for(let j=0; j< padb.length;j++){
+            clearTimeout(clpadb[j]);
+        };
+        for(let j=0; j< padc.length;j++){
+            clearTimeout(clpadc[j]);
+        };
+        for(let j=0; j< padd.length;j++){
+            clearTimeout(clpadd[j]);
+        };
+        for(let j=0; j< pade.length;j++){
+            clearTimeout(clpade[j]);
+        };
+        for(let j=0; j< padf.length;j++){
+            clearTimeout(clpadf[j]);
+        };         
+    } else {
+        changeBtn();
+        timestarter = new Date();
+        interval = setInterval(function(){
         console.log(count);
         playSound();
-        if(count === 4) {
+        if(count === 12) {
             count = 0;
             timestarter = new Date();
             padtest();
         }
-        // else{
-        //     playSound();
-        // }
         count++;
-    },realBpm(60));
+    },realBpm(100));
    }
    isPlay = !isPlay;
 });
 
-// window.addEventListener('DOMContentLoaded',() => {
-//     var interval = setInterval(function(){
-//         count++;
-//         // console.log(count);
-//         playSound();
-//         if(count === 6) {
-//             count = 0;
-//         }
-//         console.log(count+1);
-//     },realBpm(100));
-// })
 
+// playSount : 메트로놈 소리 플레이
 function playSound() {
    sound.currentTime = 0;
    sound.play();
@@ -83,71 +72,123 @@ function realBpm(bpm) {
    return (60 * 1000) / bpm;
 }
 
-let pada = [], padb = [], padc = [];
-//이거는 색 바꾸는거
+let pada = [], padb = [], padc = [], padd = [], pade = [], padf = [];
 window.addEventListener("load", () => {
   const sounds = document.querySelectorAll(".sound");
   const pads = document.querySelectorAll(".pads div");
-  const visual = document.querySelector(".visual");
-  const colors = [
-    "#60d394",
-    "#d36060",
-    "#c060d3",
-    "#d3d160",
-    "#606bd3",
-  ];
-
   pads.forEach((pad, index) => {
     pad.addEventListener("click", function() {
-      sounds[index].currentTime = 0;
-      sounds[index].play();
-      ends = new Date();
-      timegap = ends - timestarter;
-      console.log(timegap);
-    //   console.log(sounds[1]);
-      if(index == 0 && timegap <= 2400){
-          pada.push(timegap);
-          console.log("패드에이 : " + pada[0])
-      } 
-      else if(index == 1 && timegap <= 2400){
-          padb.push(timegap);
-          console.log("패드비 : " + padb[0])
-      } 
-      else if(index == 2 && timegap <= 2400){
-          padc.push(timegap);
-          console.log("패드씨 : " + padc[0])
-
-      }
+        sounds[index].currentTime = 0;
+        sounds[index].play();
+        ends = new Date();
+        timegap = ends - timestarter;
+        if(index == 0){
+            pada.push(timegap);
+        } else if(index == 1){
+            padb.push(timegap);
+        } else if(index == 2){
+            padc.push(timegap);
+        } else if(index == 3){
+            padd.push(timegap);
+        } else if(index == 4){
+            pade.push(timegap);
+        } else if(index == 5){
+            padf.push(timegap);
+        } 
+        // else if(index == 5){
+        //     padf.push(timegap);
+        // } 
+        //만약 사운드 더 추가해야하는경우 해당 부분 복사해서 진행하면 됩니다. (인덱스값과 pad알파벳으로 수정 진행)
     });
   });
-
-
 });
 
 const sounds = document.querySelectorAll(".sound");
-
+let clpada = [], clpadb = [], clpadc = [], clpadd = [], clpade = [], clpadf = [];
 function padtest(){
     if(pada[0] != undefined){
-        for(let i = 0 ; i < 10 ; i++ ){
-            setTimeout(function(){
+        for(let i = 0; i < pada.length ; i ++ ){
+            clpada.push(setTimeout(function(){
+                sounds[0].currentTime = 0;
                 sounds[0].play();
-            },pada[0]);
+            },pada[i]));
         }
     } 
-    else if(padb[0] != undefined){
-        for(let j = 0 ; j < 10 ; j++ ){
-            console.log(padb[j]);
-            setTimeout(function(){
+    if(padb[0] != undefined){
+        for(let i = 0; i < padb.length ; i ++ ){
+            clpadb.push(setTimeout(function(){
+                sounds[1].currentTime = 0;
                 sounds[1].play();
-            },padb[0]);
+            },padb[i]));
         }
     } 
-    else if(padc[0] != undefined){
-        for(let i = 0 ; i < 10 ; i++ ){
-            // console.log(realBpm);
-            setTimeout(function(){
+    if(padc[0] != undefined){
+        for(let i = 0 ; i < padc.length ; i ++ ){
+            clpadc.push(setTimeout(function(){
+                sounds[2].currentTime = 0;
                 sounds[2].play();
-            },padc[0]);
+            },padc[i]));
         }
     }
+    if(padd[0] != undefined){
+        for(let i = 0; i < padd.length ; i ++ ){
+            clpadd.push(setTimeout(function(){
+                sounds[3].currentTime = 0;
+                sounds[3].play();
+            },padd[i]));
+        }
+    } 
+    if(pade[0] != undefined){
+        for(let i = 0; i < pade.length ; i ++ ){
+            clpade.push(setTimeout(function(){
+                sounds[4].currentTime = 0;
+                sounds[4].play();
+            },pade[i]));
+        }
+    } 
+    if(padf[0] != undefined){
+        for(let i = 0; i < padf.length ; i ++ ){
+            clpadf.push(setTimeout(function(){
+                sounds[5].currentTime = 0;
+                sounds[5].play();
+            },padf[i]));
+        }
+    } 
+    // if(padf[0] != undefined){
+    //     for(let i = 0; i < padf.length ; i ++ ){
+    //         clpadf.push(setTimeout(function(){
+    //             sounds[5].currentTime = 0;
+    //             sounds[5].play();
+    //         },padf[i]));
+    //     }
+    // }
+    //패드 추가했을 경우 해당부분 복사해서 진행하면 됩니다.
   }
+
+  resetBtn.addEventListener('click',() => {
+    for(let j=0; j< pada.length;j++){
+        clearTimeout(clpada[j]);
+    };
+    for(let j=0; j< padb.length;j++){
+        clearTimeout(clpadb[j]);
+    };
+    for(let j=0; j< padc.length;j++){
+        clearTimeout(clpadc[j]);
+    };
+    for(let j=0; j< padd.length;j++){
+        clearTimeout(clpadd[j]);
+    };
+    for(let j=0; j< pade.length;j++){
+        clearTimeout(clpade[j]);
+    };
+    for(let j=0; j< padf.length;j++){
+        clearTimeout(clpadf[j]);
+    };
+    pada.length = 0;
+    padb.length = 0;
+    padc.length = 0;
+    padd.length = 0;
+    pade.length = 0;
+    padf.length = 0;
+
+});

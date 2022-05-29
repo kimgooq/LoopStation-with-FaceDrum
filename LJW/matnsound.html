@@ -11,37 +11,48 @@
    <div class="container">
       <h3 class="text-center mt-4">Metronome</h3>
       <h1 class="text-center text-info mt-3 mb-3">100 BPM</h1>
-      <!-- <input class="form-control" type="range" id="bpm" min="40" max="220" value="100" /> -->
-      <audio id="sound" src="/matro.wav"></audio>
+      <audio id="sound" src="/soundsrc/matro.wav"></audio>
       <button class="btn btn-primary btn-block mt-4" id="startBtn">Start</button>
+      <button class="btn btn-primary btn-block mt-4" id="resetBtn">Reset</button>
    </div>
    <section class="app">
-    <div class="visual"></div>
     <div class="pads">
       <div class="pad1">
-        <audio src="/BP_Cym_5.wav" class="sound"></audio>
+      <audio class="sound">
+        <source src="/soundsrc/Cym.wav" />
+      </audio>
       </div>
       <div class="pad2">
         <audio class="sound">
-          <source src="/LIT1_Kick_6.wav" />
+          <source src="/soundsrc/Kick.wav" />
         </audio>
       </div>
       <div class="pad3">
         <audio class="sound">
-          <source src="/NS1_Clap_9.wav" />
+          <source src="/soundsrc/Clap.wav" />
         </audio>
       </div>
       <div class="pad4">
         <audio class="sound">
-          <source src="/SB_Snap_3.wav" />
+          <source src="/soundsrc/Snap.wav" />
         </audio>
       </div>
       <div class="pad5">
         <audio class="sound">
-          <source src="/SB_Vox_1.wav" />
+          <source src="/soundsrc/808_1.wav" />
         </audio>
       </div>
+      <div class="pad6">
+        <audio class="sound">
+          <source src="/soundsrc/808_2.wav" />
+        </audio>
       </div>
+      <!-- 만약 더 추가해야한다면, 해당 번째 수정해서 진행하면 됩니다. -->
+      <!-- <div class="padn">
+        <audio class="sound">
+          <source src="/soundsrc/808_2.wav" />
+        </audio>
+      </div> -->
     </div>
   </section>
 </body>
