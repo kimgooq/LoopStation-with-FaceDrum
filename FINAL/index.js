@@ -2,7 +2,7 @@ const videoElement = document.getElementsByClassName("input_webcam")[0];
 const canvasElement = document.getElementsByClassName("output_canvas")[0];
 const canvasCtx = canvasElement.getContext("2d");
 
-// LoopStation
+// LoopStation Audio Source
 var audioArray = [
   new Audio("./sound/drum/1_808.wav"),
   new Audio("./sound/drum/2_808.wav"),
@@ -35,7 +35,7 @@ function startDrum() {
         pushPadDict();
       }
       count++;
-    }, (60 * 1000) / 80); // bpm
+    }, (60 * 1000) / 80); // 80 bpm
     isPlay = !isPlay;
   }
 }
@@ -87,6 +87,7 @@ function _pushPad(pad, clpad, soundIdx) {
     for (let i = 0; i < pad.length; i++) {
       clpad.push(
         setTimeout(function () {
+          // consider if sound is not finished.. user would think it should be recorded
           audioArray[soundIdx].currentTime = 0;
           audioArray[soundIdx].play();
         }, pad[i])
@@ -110,7 +111,7 @@ function ResetDrumSound() {
 THREE.Cache.enabled = true;
 
 import * as THREE from "three";
-import { TRIANGULATION } from "../resource/triangulation.js";
+import { TRIANGULATION } from "./triangulation.js";
 import { OrbitControls } from "https://unpkg.com/three@0.133.1/examples/jsm/controls/OrbitControls.js";
 import { FontLoader } from "https://unpkg.com/three@0.133.1/examples/jsm/loaders/FontLoader.js";
 import { TextGeometry } from "https://unpkg.com/three@0.133.1/examples/jsm/geometries/TextGeometry.js";
@@ -139,7 +140,7 @@ const camera_helper = new THREE.CameraHelper(camera_ar);
 const renderer_world = new THREE.WebGLRenderer();
 renderer_world.setSize(r_width, r_height);
 renderer_world.setViewport(0, 0, r_width, r_height);
-// document.body.appendChild(renderer_world.domElement);
+document.body.appendChild(renderer_world.domElement);
 
 // camera_world
 const camera_world = new THREE.PerspectiveCamera(
@@ -159,13 +160,9 @@ ambientlight.position.set(0, 0, camera_ar.near);
 const light_helper = new THREE.DirectionalLightHelper(light, 0);
 
 // orbitcontrols
-// const controls = new OrbitControls(camera_world, renderer_world.domElement);
-// controls.enableDamping = true;
-// controls.dampingFactor = 0.1;
-
-// raycaster
-const mouse = new THREE.Vector2();
-const rayCast = new THREE.Raycaster();
+const controls = new OrbitControls(camera_world, renderer_world.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
 
 const scene = new THREE.Scene();
 const video_texture = new THREE.VideoTexture(videoElement);
@@ -279,7 +276,8 @@ text_loader.load("./DH_light.json", function (font) {
   });
   const font_material = new THREE.MeshPhongMaterial({ color: 0xffffff });
   const red_font_material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-  // group_text.matrixAutoUpdate = true;
+  group_text.matrixAutoUpdate = true;
+
   scene.add(group_text);
   text_materials = [font_material, font_material];
   red_text_materials = [red_font_material, red_font_material];
@@ -301,19 +299,17 @@ text_loader.load("./DH_light.json", function (font) {
     textMesh_snap,
     textMesh_vox
   );
-  // textMesh_left_808.matrixAutoUpdate = true;
 });
 
 scene.add(light);
-// scene.add(ambientlight);
-// scene.add(light_helper);
-// scene.add(camera_helper);
+scene.add(ambientlight);
+scene.add(light_helper);
+scene.add(camera_helper);
 scene.add(video_mesh);
 
 let face_mesh = null;
 let axis_X = null;
 let axis_Y = null;
-let axis_Z = null;
 
 // set Origin Axis, common state
 let origin_axis_X = new THREE.Vector3(1, 0, 0);
@@ -349,7 +345,6 @@ function GetAngleTo(v1, v2) {
   const theta = v1.dot(v2) / denominator;
 
   // clamp, to handle numerical problems
-
   // return Math.acos(clamp(theta, -1, 1));
   return theta;
 }
@@ -362,11 +357,6 @@ function ProjScale(p_ms, cam_pos, src_d, dst_d) {
     vec_cam2p.multiplyScalar(dst_d / src_d)
   );
 }
-
-const box_geometry = new THREE.BoxGeometry(8, 8, 8);
-const box_material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const box_mesh = new THREE.Mesh(box_geometry, box_material);
-// scene.add(box_mesh);
 
 const myGesture = {
   gesture: "",
@@ -391,7 +381,6 @@ function onResults2(results) {
     canvasElement.width,
     canvasElement.height
   );
-  // canvasCtx.globalCompositeOperation = "source-in";
   if (results.rightHandLandmarks) {
     const landmarks_hand = results.rightHandLandmarks;
     if (myGesture.gesture != getGesture(landmarks_hand)) {
@@ -419,33 +408,6 @@ function onResults2(results) {
 
   if (results.faceLandmarks) {
     const landmarks_face = results.faceLandmarks;
-    // drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, {
-    //   color: "#C0C0C070",
-    //   lineWidth: 1,
-    // });
-    // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, {
-    //   color: "#FF3030",
-    // });
-    // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYEBROW, {
-    //   color: "#FF3030",
-    // });
-    // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_IRIS, {
-    //   color: "#FF3030",
-    // });
-    // drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, {
-    //   color: "#30FF30",
-    // });
-    // drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYEBROW, {
-    //   color: "#30FF30",
-    // });
-    // drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_IRIS, {
-    //   color: "#30FF30",
-    // });
-    // drawConnectors(canvasCtx, landmarks, FACEMESH_FACE_OVAL, {
-    //   color: "#E0E0E0",
-    // });
-    // drawConnectors(canvasCtx, landmarks, FACEMESH_LIPS, { color: "#E0E0E0" });
-
     if (face_mesh == null) {
       // face_mesh setAttribute
       let face_geometry = new THREE.BufferGeometry();
@@ -481,7 +443,6 @@ function onResults2(results) {
       // face_mesh local Axis
       let LocalAxis_X_geo = new THREE.BufferGeometry();
       let LocalAxis_Y_geo = new THREE.BufferGeometry();
-      let LocalAxis_Z_geo = new THREE.BufferGeometry();
       LocalAxis_X_geo.setAttribute(
         "position",
         new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
@@ -490,42 +451,19 @@ function onResults2(results) {
         "position",
         new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
       );
-      LocalAxis_Z_geo.setAttribute(
-        "position",
-        new THREE.BufferAttribute(new Float32Array(2 * 3), 3)
-      );
       const LocalAxis_X_material = new THREE.LineBasicMaterial({
-        color: 0x00ffff,
+        color: 0xff0000,
       });
       const LocalAxis_Y_material = new THREE.LineBasicMaterial({
-        color: 0xff00ff,
-      });
-      const LocalAxis_Z_material = new THREE.LineBasicMaterial({
-        color: 0x0000ff,
+        color: 0x00ff00,
       });
       axis_X = new THREE.Line(LocalAxis_X_geo, LocalAxis_X_material);
       axis_Y = new THREE.Line(LocalAxis_Y_geo, LocalAxis_Y_material);
-      axis_Z = new THREE.Line(LocalAxis_Z_geo, LocalAxis_Z_material);
 
-      // scene.add(face_mesh);
-      // scene.add(axis_X);
-      // scene.add(axis_Y);
-      // scene.add(axis_Z);
+      scene.add(face_mesh);
+      scene.add(axis_X);
+      scene.add(axis_Y);
     }
-
-    const p_c = new THREE.Vector3(0, 0, 0).unproject(camera_ar);
-    const vec_cam2center = new THREE.Vector3().subVectors(
-      p_c,
-      camera_ar.position
-    );
-    const center_dist = vec_cam2center.length();
-
-    // landmark for vector representing local axis
-    //   let landmark_top = GetPS(landmarks[10]);
-    //   let landmark_bottom = GetPS(landmarks[152]);
-    //   let landmark_left = GetPS(landmarks[234]);
-    //   let landmark_right = GetPS(landmarks[454]);
-
     // Draw face_mesh & Local Axis
     const num_points = landmarks_face.length;
     for (let i = 0; i < num_points; i++) {
@@ -578,8 +516,6 @@ function onResults2(results) {
       landmarks_face[291].z - landmarks_face[61].z
     );
 
-    // box_mesh.position.set(pos_iris.x, pos_iris.y, pos_iris.z);
-
     // make Local Axis for vector representing face_mesh local axis
     const landmark_top = landmark2WS(landmarks_face[10], camera_ar);
     const landmark_bottom = landmark2WS(landmarks_face[152], camera_ar);
@@ -605,7 +541,7 @@ function onResults2(results) {
     group_text.position.x = pos_root.x;
     group_text.position.y = pos_root.y;
     group_text.position.z = pos_root.z;
-    // left 50 right 280
+
     axis_X.geometry.attributes.position.array[0] = landmark_left.x;
     axis_X.geometry.attributes.position.array[1] = landmark_left.y;
     axis_X.geometry.attributes.position.array[2] = landmark_left.z;
@@ -619,6 +555,7 @@ function onResults2(results) {
     axis_Y.geometry.attributes.position.array[3] = landmark_top.x;
     axis_Y.geometry.attributes.position.array[4] = landmark_top.y;
     axis_Y.geometry.attributes.position.array[5] = landmark_top.z;
+
     const vec_axis_X = new THREE.Vector3(
       landmark_right.x - landmark_left.x,
       landmark_right.y - landmark_left.y,
@@ -629,9 +566,11 @@ function onResults2(results) {
       landmark_top.y - landmark_bottom.y,
       landmark_top.z - landmark_bottom.z
     );
+    // root to wink
     const pos_for_wink = landmark2WS(landmarks_face[168], camera_ar).sub(
       pos_root
     );
+    // root to vox
     const pos_for_vox = landmark2WS(landmarks_face[13], camera_ar).sub(
       pos_root
     );
@@ -668,6 +607,7 @@ function onResults2(results) {
       orientation_Z *= -1;
     }
 
+    // set Text Mesh position, textMesh width(or height) size was used as static value(int)
     textMesh_left_808.position.x = -130 - vec_axis_X.length() / 2;
     textMesh_right_808.position.x = 12 + vec_axis_X.length() / 2;
     textMesh_clap.position.set(
@@ -692,7 +632,6 @@ function onResults2(results) {
     textMesh_snap.position.set(-35, -vec_axis_Y.length() + 65, 0);
     textMesh_vox.position.set(pos_for_vox.x - 30, pos_for_vox.y, pos_for_vox.z);
 
-    // degree 20 30 38
     // play drum by orientation
     if (orientation_X > 0.349 && state_down == false) {
       // console.log("down");
@@ -765,21 +704,28 @@ function onResults2(results) {
       textMesh_vox.material = text_materials;
     }
 
+    // for wink detection, consider that both eyes are closed during wink
     let lefteye_Isopened = 1;
     let righteye_Isclosed = 1;
-    // for wink detection, must check other eye is enough opened
-    if (dis_left_eye < 0.075 && dis_right_eye > 0.25) {
+
+    if (dis_right_eye < 0.2 && dis_left_eye < 0.2) {
       lefteye_Isopened = -1;
-    } else if (dis_right_eye < 0.075 && dis_left_eye > 0.25) {
       righteye_Isclosed = -1;
+    } else if (dis_left_eye < 0.09) {
+      lefteye_Isopened = -1;
+      righteye_Isclosed = 1;
+      console.log("left closed");
+    } else if (dis_right_eye < 0.09) {
+      lefteye_Isopened = 1;
+      righteye_Isclosed = -1;
+      console.log("right closed");
     }
-    let Iswink = lefteye_Isopened * righteye_Isclosed;
-    if (Iswink < 0 && state_wink == false) {
+    if (lefteye_Isopened * righteye_Isclosed < 0 && state_wink == false) {
       // console.log("wink");
       state_wink = true;
       DrumPlay(2);
       textMesh_clap.material = red_text_materials;
-    } else if (Iswink > 0) {
+    } else if (lefteye_Isopened > 0 && righteye_Isclosed > 0) {
       state_wink = false;
       textMesh_clap.material = text_materials;
     }
@@ -790,7 +736,6 @@ function onResults2(results) {
 
     axis_X.geometry.attributes.position.needsUpdate = true;
     axis_Y.geometry.attributes.position.needsUpdate = true;
-    axis_Z.geometry.attributes.position.needsUpdate = true;
 
     let texure_frame = new THREE.CanvasTexture(results.image);
     face_mesh.material.map = texure_frame;
@@ -799,12 +744,18 @@ function onResults2(results) {
   }
   scene.remove(light_helper);
   scene.remove(camera_helper);
+  scene.remove(face_mesh);
+  scene.remove(axis_X);
+  scene.remove(axis_Y);
   renderer.render(scene, camera_ar);
 
   scene.add(light_helper);
   scene.add(camera_helper);
-  // renderer_world.render(scene, camera_world);
-  // controls.update();
+  scene.add(face_mesh);
+  scene.add(axis_X);
+  scene.add(axis_Y);
+  renderer_world.render(scene, camera_world);
+  controls.update();
 
   canvasCtx.restore();
 }
