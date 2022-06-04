@@ -1,37 +1,37 @@
 #container {
-    height: 300px;
-    display: flex;
-    flex-direction: column;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
 }
 
 #intro {
-    text-align: center;
-    font-size: 400%;
+  text-align: center;
+  font-size: 400%;
 }
 
 #squarec {
-    color : red;
+  color: red;
 }
 
 #emoji {
-    display: flex;
-    justify-content: space-around;
-    margin: 10px;
+  display: flex;
+  justify-content: space-around;
+  margin: 10px;
 }
 
 .emojiscale {
-    font-size: 600%;
-    text-align: center;
+  font-size: 600%;
+  text-align: center;
 }
 
 .explanation {
-    text-align: center;
-    font-size: 150%;
-
+  text-align: center;
+  margin: 5px;
+  font-size: 150%;
 }
 
 #threefinger {
-    text-align: center;
-    margin-top: 3px;
-    margin-bottom: 15px;
+  text-align: center;
+  margin-top: 3px;
+  margin-bottom: 15px;
 }
