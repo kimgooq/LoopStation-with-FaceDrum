@@ -11,12 +11,12 @@ import * as THREE from "three";
 import { OrbitControls } from "https://unpkg.com/three@0.133.1/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "https://unpkg.com/three@0.133.1/examples/jsm/loaders/GLTFLoader.js";
 
-let bFirstTPose = false;
-let R_root_leftleg;
-
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 const render_w = videoElement.videoWidth;
 const render_h = videoElement.videoHeight;
+// const render_w = 640;
+// const render_h = 480;
+console.log(renderer);
 renderer.setSize(render_w, render_h);
 renderer.setViewport(0, 0, render_w, render_h);
 renderer.shadowMap.enabled = true;
@@ -200,7 +200,7 @@ poselandmarks_points.geometry.setAttribute(
 );
 Newposelandmarks_points.geometry.setAttribute(
   "position",
-  new THREE.BufferAttribute(new Float32Array(7 * 3), 3)
+  new THREE.BufferAttribute(new Float32Array(10 * 3), 3)
 );
 scene.add(poselandmarks_points);
 scene.add(Newposelandmarks_points);
@@ -330,6 +330,32 @@ function onResults2(results) {
     return pose3dDict;
   }
 
+  function SetRbyCalculatingJoints(
+    joint_mp,
+    joint_mp_child,
+    joint_model,
+    joint_model_child,
+    joint_model_parent,
+    R_chain
+  ) {
+    let R;
+    const v = new THREE.Vector3()
+      .subVectors(joint_mp_child, joint_mp)
+      .normalize();
+    if (joint_model_parent == null) {
+      R = computeR(joint_model_child.position.clone().normalize(), v);
+      // console.log("SetRbyCalculatingJoints() joint_model_parent is null");
+      joint_model.quaternion.setFromRotationMatrix(R);
+    } else {
+      R = computeR(
+        joint_model_child.position.clone().normalize(),
+        v.applyMatrix4(R_chain.clone().transpose())
+      );
+      joint_model.quaternion.setFromRotationMatrix(R);
+    }
+    R_chain.multiply(R);
+  }
+
   {
     let pose_landmarks_dict = {};
     let newJoints3D = {};
@@ -345,7 +371,6 @@ function onResults2(results) {
       new THREE.Vector3(1, 0, -1.5),
       pose_landmarks_dict
     );
-    //console.log(pos_3d_landmarks["left_heel"]);
 
     let i = 0;
     for (const [key, value] of Object.entries(pos_3d_landmarks)) {
@@ -420,6 +445,22 @@ function onResults2(results) {
       neck,
       dir_head.clone().multiplyScalar(0.5)
     );
+    const dir_right_foot = new THREE.Vector3().subVectors(
+      pos_3d_landmarks["right_foot_index"],
+      pos_3d_landmarks["right_heel"]
+    );
+    newJoints3D["right_toebase"] = new THREE.Vector3().addVectors(
+      pos_3d_landmarks["right_heel"],
+      dir_right_foot.clone().multiplyScalar(0.6)
+    );
+    const dir_left_foot = new THREE.Vector3().subVectors(
+      pos_3d_landmarks["left_foot_index"],
+      pos_3d_landmarks["left_heel"]
+    );
+    newJoints3D["left_toebase"] = new THREE.Vector3().addVectors(
+      pos_3d_landmarks["left_heel"],
+      dir_left_foot.clone().multiplyScalar(0.6)
+    );
     // let new_pos_3d_landmarks = update3dpose(
     //   camera_world,
     //   1.5,
@@ -464,6 +505,7 @@ function onResults2(results) {
     let Rv12 = v12.clone().applyMatrix4(R0.clone().transpose());
     let R1 = computeR(j2, Rv12);
     boneLeftForeArm.setRotationFromMatrix(R1);
+
     //console.log(boneLeftArm);
 
     // Right shoulder-elbow-wrist
@@ -541,69 +583,98 @@ function onResults2(results) {
     let j0_hip = boneHip.position.clone().normalize();
 
     // left upleg-leg-foot
-    let jointLeftUpLeg = pos_3d_landmarks["left_hip"]; // p0_lefthip
-    let jointLeftKnee = pos_3d_landmarks["left_knee"]; // p1_leftknee
-    let boneLeftUpLeg = skeleton.getBoneByName("mixamorigLeftUpLeg"); // j1
-    let v01_leftlower = new THREE.Vector3()
-      .subVectors(jointLeftKnee, jointLeftUpLeg)
-      .normalize();
-    let j1_leftlower = boneLeftUpLeg.position.clone().normalize();
-    let R0_leftlower = computeR(
-      skeleton.getBoneByName("mixamorigLeftLeg").position.clone().normalize(),
-      v01_leftlower
-    );
-    boneLeftUpLeg.setRotationFromMatrix(R0_leftlower);
+    let R_chain_leftupper = new THREE.Matrix4().identity();
+    const jointLeftUpLeg = pos_3d_landmarks["left_hip"];
+    const jointLeftKnee = pos_3d_landmarks["left_knee"];
+    const jointLeftAnkle = pos_3d_landmarks["left_ankle"];
+    // const jointLeftHeel = pos_3d_landmarks["left_heel"];
+    const jointLeftToeBase = newJoints3D["left_toebase"];
+    const jointLeftFoot = pos_3d_landmarks["left_foot_index"];
 
-    let jointLeftAnkle = pos_3d_landmarks["left_ankle"]; // p2_leftankle
-    let boneLeftLeg = skeleton.getBoneByName("mixamorigLeftLeg"); // j2
-    let v12_leftlower = new THREE.Vector3()
-      .subVectors(jointLeftAnkle, jointLeftKnee)
-      .normalize();
-    let j2_leftlower = boneLeftLeg.position.clone().normalize();
-    let Rv12_leftlower = v12_leftlower
-      .clone()
-      .applyMatrix4(R0_leftlower.clone().transpose());
-    let R1_leftlower = computeR(
-      skeleton.getBoneByName("mixamorigLeftFoot").position.clone().normalize(),
-      Rv12_leftlower
+    const boneLeftUpLeg = skeleton.getBoneByName("mixamorigLeftUpLeg");
+    const boneLeftLeg = skeleton.getBoneByName("mixamorigLeftLeg");
+    const boneLeftFoot = skeleton.getBoneByName("mixamorigLeftFoot");
+    const boneLeftToeBase = skeleton.getBoneByName("mixamorigLeftToeBase");
+    const boneLeftToe_End = skeleton.getBoneByName("mixamorigLeftToe_End");
+    SetRbyCalculatingJoints(
+      jointLeftUpLeg,
+      jointLeftKnee,
+      boneLeftUpLeg,
+      boneLeftLeg,
+      null,
+      R_chain_leftupper
     );
-    boneLeftLeg.setRotationFromMatrix(R1_leftlower);
-
+    SetRbyCalculatingJoints(
+      jointLeftKnee,
+      jointLeftAnkle,
+      boneLeftLeg,
+      boneLeftFoot,
+      boneLeftUpLeg,
+      R_chain_leftupper
+    );
+    SetRbyCalculatingJoints(
+      jointLeftAnkle,
+      jointLeftToeBase,
+      boneLeftFoot,
+      boneLeftToeBase,
+      boneLeftLeg,
+      R_chain_leftupper
+    );
+    SetRbyCalculatingJoints(
+      jointLeftToeBase,
+      jointLeftFoot,
+      boneLeftToeBase,
+      boneLeftToe_End,
+      boneLeftFoot,
+      R_chain_leftupper
+    );
     // Right upleg-leg-foot
-    let jointRightUpLeg = pos_3d_landmarks["right_hip"]; // p0_lefthip
-    let jointRightKnee = pos_3d_landmarks["right_knee"]; // p1_leftknee
-    let boneRightUpLeg = skeleton.getBoneByName("mixamorigRightUpLeg"); // j1
-    let v01_rightlower = new THREE.Vector3()
-      .subVectors(jointRightKnee, jointRightUpLeg)
-      .normalize();
-    let j1_rightlower = boneRightUpLeg.position.clone().normalize();
-    let R0_rightlower = computeR(
-      skeleton.getBoneByName("mixamorigRightLeg").position.clone().normalize(),
-      v01_rightlower
-    );
-    boneRightUpLeg.setRotationFromMatrix(R0_rightlower);
+    let R_chain_rightupper = new THREE.Matrix4().identity();
+    const jointRightUpLeg = pos_3d_landmarks["right_hip"];
+    const jointRightKnee = pos_3d_landmarks["right_knee"];
+    const jointRightAnkle = pos_3d_landmarks["right_ankle"];
+    // const jointRightHeel = pos_3d_landmarks["right_heel"];
+    const jointRightToeBase = newJoints3D["right_toebase"];
+    const jointRightFoot = pos_3d_landmarks["right_foot_index"];
 
-    let jointRightAnkle = pos_3d_landmarks["right_ankle"]; // p2_leftankle
-    let boneRightLeg = skeleton.getBoneByName("mixamorigRightLeg"); // j2
-    let v12_rightlower = new THREE.Vector3()
-      .subVectors(jointRightAnkle, jointRightKnee)
-      .normalize();
-    let j2_rightlower = boneRightLeg.position.clone().normalize();
-    let Rv12_rightlower = v12_rightlower
-      .clone()
-      .applyMatrix4(R0_rightlower.clone().transpose());
-    let R1_rightlower = computeR(
-      skeleton.getBoneByName("mixamorigRightFoot").position.clone().normalize(),
-      Rv12_rightlower
+    const boneRightUpLeg = skeleton.getBoneByName("mixamorigRightUpLeg");
+    const boneRightLeg = skeleton.getBoneByName("mixamorigRightLeg");
+    const boneRightFoot = skeleton.getBoneByName("mixamorigRightFoot");
+    const boneRightToeBase = skeleton.getBoneByName("mixamorigRightToeBase");
+    const boneRightToe_End = skeleton.getBoneByName("mixamorigRightToe_End");
+
+    SetRbyCalculatingJoints(
+      jointRightUpLeg,
+      jointRightKnee,
+      boneRightUpLeg,
+      boneRightLeg,
+      null,
+      R_chain_rightupper
     );
-    // let test_matrix = new THREE.Matrix4().makeRotationX(1.9);
-    // let test_matrix2 = new THREE.Matrix4().makeRotationX(0.1);
-    boneRightLeg.setRotationFromMatrix(R1_rightlower);
-    // console.log("R1_rightlower", R1_rightlower);
-    // console.log(
-    //   "R_matrix",
-    //   new THREE.Matrix4().makeRotationFromEuler(boneRightLeg.rotation)
-    // );
+    SetRbyCalculatingJoints(
+      jointRightKnee,
+      jointRightAnkle,
+      boneRightLeg,
+      boneRightFoot,
+      boneRightUpLeg,
+      R_chain_rightupper
+    );
+    SetRbyCalculatingJoints(
+      jointRightAnkle,
+      jointRightToeBase,
+      boneRightFoot,
+      boneRightToeBase,
+      boneRightLeg,
+      R_chain_rightupper
+    );
+    SetRbyCalculatingJoints(
+      jointRightToeBase,
+      jointRightFoot,
+      boneRightToeBase,
+      boneRightToe_End,
+      boneRightFoot,
+      R_chain_rightupper
+    );
   }
 
   renderer.render(scene, camera_ar);
@@ -626,11 +697,20 @@ pose.setOptions({
 });
 pose.onResults(onResults2);
 
+// video
 videoElement.play();
-
 async function detectionFrame() {
   await pose.send({ image: videoElement });
   videoElement.requestVideoFrameCallback(detectionFrame);
 }
-
 detectionFrame();
+
+// webcam
+// const camera = new Camera(videoElement, {
+//   onFrame: async () => {
+//     await pose.send({ image: videoElement });
+//   },
+//   width: 640,
+//   height: 480,
+// });
+// camera.start();
