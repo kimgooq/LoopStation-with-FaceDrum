@@ -178,7 +178,7 @@ let axis_helper_root = new THREE.AxesHelper(1);
 axis_helper_root.position.set(0, 0.001, 0);
 scene.add(axis_helper_root);
 
-const test_points = new THREE.Points(
+const poselandmarks_points = new THREE.Points(
   new THREE.BufferGeometry(),
   new THREE.PointsMaterial({
     color: 0xff0000,
@@ -186,11 +186,24 @@ const test_points = new THREE.Points(
     sizeAttenuation: true,
   })
 );
-test_points.geometry.setAttribute(
+const Newposelandmarks_points = new THREE.Points(
+  new THREE.BufferGeometry(),
+  new THREE.PointsMaterial({
+    color: 0x0000ff,
+    size: 0.1,
+    sizeAttenuation: true,
+  })
+);
+poselandmarks_points.geometry.setAttribute(
   "position",
   new THREE.BufferAttribute(new Float32Array(33 * 3), 3)
 );
-scene.add(test_points);
+Newposelandmarks_points.geometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(new Float32Array(7 * 3), 3)
+);
+scene.add(poselandmarks_points);
+scene.add(Newposelandmarks_points);
 
 function computeR(A, B) {
   // get unit vectors
@@ -319,6 +332,7 @@ function onResults2(results) {
 
   {
     let pose_landmarks_dict = {};
+    let newJoints3D = {};
     results.poseLandmarks.forEach((landmark, i) => {
       //console.log(i, landmark);
       //console.log(index_to_name[i]);
@@ -335,13 +349,98 @@ function onResults2(results) {
 
     let i = 0;
     for (const [key, value] of Object.entries(pos_3d_landmarks)) {
-      test_points.geometry.attributes.position.array[3 * i + 0] = value.x;
-      test_points.geometry.attributes.position.array[3 * i + 1] = value.y;
-      test_points.geometry.attributes.position.array[3 * i + 2] = value.z;
+      poselandmarks_points.geometry.attributes.position.array[3 * i + 0] =
+        value.x;
+      poselandmarks_points.geometry.attributes.position.array[3 * i + 1] =
+        value.y;
+      poselandmarks_points.geometry.attributes.position.array[3 * i + 2] =
+        value.z;
       i++;
     }
-    test_points.geometry.attributes.position.needsUpdate = true;
+    poselandmarks_points.geometry.attributes.position.needsUpdate = true;
 
+    // add landmarks for spine
+    const center_hips = new THREE.Vector3()
+      .addVectors(pos_3d_landmarks["left_hip"], pos_3d_landmarks["right_hip"])
+      .multiplyScalar(0.5);
+    // center_hips.multiplyScalar(0.5);
+    const center_shoulders = new THREE.Vector3()
+      .addVectors(
+        pos_3d_landmarks["left_shoulder"],
+        pos_3d_landmarks["right_shoulder"]
+      )
+      .multiplyScalar(0.5);
+    const center_ear = new THREE.Vector3()
+      .addVectors(pos_3d_landmarks["left_ear"], pos_3d_landmarks["right_ear"])
+      .multiplyScalar(0.5);
+
+    const dir_spine = new THREE.Vector3().subVectors(
+      center_shoulders,
+      center_hips
+    );
+    const length_spine = dir_spine.length();
+    dir_spine.normalize();
+
+    const dir_shoulders = new THREE.Vector3().subVectors(
+      pos_3d_landmarks["right_shoulder"],
+      pos_3d_landmarks["left_shoulder"]
+    );
+
+    newJoints3D["hips"] = new THREE.Vector3().addVectors(
+      center_hips,
+      dir_spine.clone().multiplyScalar(length_spine / 9.0)
+    );
+    newJoints3D["spine0"] = new THREE.Vector3().addVectors(
+      center_hips,
+      dir_spine.clone().multiplyScalar((length_spine / 9.0) * 3)
+    );
+    newJoints3D["spine1"] = new THREE.Vector3().addVectors(
+      center_hips,
+      dir_spine.clone().multiplyScalar((length_spine / 9.0) * 5)
+    );
+    newJoints3D["spine2"] = new THREE.Vector3().addVectors(
+      center_hips,
+      dir_spine.clone().multiplyScalar((length_spine / 9.0) * 7)
+    );
+    const neck = new THREE.Vector3().addVectors(
+      center_shoulders,
+      dir_spine.clone().multiplyScalar(length_spine / 9.0)
+    );
+    newJoints3D["neck"] = neck;
+    newJoints3D["shoulder_left"] = new THREE.Vector3().addVectors(
+      pos_3d_landmarks["left_shoulder"],
+      dir_shoulders.clone().multiplyScalar(1 / 3.0)
+    );
+    newJoints3D["shoulder_right"] = new THREE.Vector3().addVectors(
+      pos_3d_landmarks["left_shoulder"],
+      dir_shoulders.clone().multiplyScalar(2 / 3.0)
+    );
+    const dir_head = new THREE.Vector3().subVectors(center_ear, neck);
+    newJoints3D["head"] = new THREE.Vector3().addVectors(
+      neck,
+      dir_head.clone().multiplyScalar(0.5)
+    );
+    // let new_pos_3d_landmarks = update3dpose(
+    //   camera_world,
+    //   1.5,
+    //   new THREE.Vector3(1, 0, -1.5),
+    //   newJoints3D
+    // );
+    i = 0;
+    // console.log(new_pos_3d_landmarks);
+    for (const [key, value] of Object.entries(newJoints3D)) {
+      Newposelandmarks_points.geometry.attributes.position.array[3 * i + 0] =
+        value.x;
+      Newposelandmarks_points.geometry.attributes.position.array[3 * i + 1] =
+        value.y;
+      Newposelandmarks_points.geometry.attributes.position.array[3 * i + 2] =
+        value.z;
+      i++;
+    }
+    Newposelandmarks_points.geometry.attributes.position.needsUpdate = true;
+    // for (const [key, value] of Object.entries(newJoints3D)) {
+    //   pose3dDict[key] = value;
+    // }
     // rigging //
     //mixamorigLeftArm : left_shoulder
     //mixamorigLeftForeArm : left_elbow
