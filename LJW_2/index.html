@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.133.1/build/three.module.js"
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="container" id="container">
+      <video
+        class="input_video"
+        src="../resource/pose_2_mov.mp4"
+        loop
+        muted
+        hidden
+      ></video>
+      <canvas class="output_canvas" width="820px" height="462px"></canvas>
+      <video class="input_video" hidden></video>
+      <!-- <canvas class="output_canvas" width="640px" height="480px"></canvas> -->
+    </div>
+    <script type="module" src="./lab_class_jw2.js"></script>
+  </body>
+</html>
