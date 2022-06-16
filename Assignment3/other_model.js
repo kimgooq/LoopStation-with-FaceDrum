@@ -902,11 +902,10 @@ async function init() {
       R_chain_leftupper.multiply(
         new THREE.Matrix4().extractRotation(boneHand.matrix)
       );
-      // parseInt(13 / 5)
+
       let R_chain_index = new THREE.Matrix4().identity();
       let R_chain_middle = new THREE.Matrix4().identity();
       let R_chain_ring = new THREE.Matrix4().identity();
-      let R_chain_pinky = new THREE.Matrix4().identity();
       let R_chain_thumb = new THREE.Matrix4().identity();
 
       let R_list = [R_chain_index, R_chain_middle, R_chain_ring, R_chain_thumb];
