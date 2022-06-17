@@ -757,6 +757,12 @@ class RigidBody {
     const params = this.params;
     const bones = this.mesh.skeleton.bones;
     const bone = params.boneIndex === -1 ? new Bone() : bones[params.boneIndex];
+    // console.log(params);
+    // bones.forEach(function (obj) {
+    //   obj.position.multiplyScalar(0.1);
+    // });
+    // bone.position.multiplyScalar(0.1);
+    // console.log(bone);
 
     const shape = generateShape(params);
     const weight = params.type === 0 ? 0 : params.weight;
@@ -775,7 +781,11 @@ class RigidBody {
     const vector = manager.allocThreeVector3();
     const boneForm = manager.allocTransform();
     manager.setIdentity(boneForm);
+
+    // vector.multiplyScalar(0.1);
     manager.setOriginFromThreeVector3(boneForm, bone.getWorldPosition(vector));
+
+    // console.log(vector);
 
     const form = manager.multiplyTransforms(boneForm, boneOffsetForm);
     const state = new Ammo.btDefaultMotionState(form);
