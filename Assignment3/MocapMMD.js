@@ -163,30 +163,16 @@ function init() {
     });
     console.log(model.geometry.attributes);
     console.log(model.geometry.userData.MMD);
-    console.log(model.geometry.userData.MMD.rigidBodies);
-    console.log(model.geometry.userData.MMD.constraints);
+    model.geometry.userData.MMD.iks.pop();
+    console.log(model.geometry.userData.MMD.iks);
+    model.geometry.userData.MMD.iks.push({
+      target: 142, // "target"
+      effector: 70, // "bone3"
+      links: [{ index: 69 }, { index: 68 }, { index: 67 }], // "bone2", "bone1", "bone0"
+      //141이 허리 중앙점임
+      //142가 중앙종착지
+    });
 
-    // model.geometry.userData.MMD.rigidBodies.forEach(function (obj) {
-    //   // obj.position = [
-    //   //   obj.position[0] * 0.1,
-    //   //   obj.position[1] * 0.1,
-    //   //   obj.position[2] * 0.1,
-    //   // ];
-    //   // obj.height *= 0.8;
-    //   // obj.width *= 0.8;
-    //   // obj.weight *= 0.8;
-    // });
-    // model.geometry.userData.MMD.constraints.forEach(function (obj) {
-    //   // obj.position = [
-    //   //   obj.position[0] * 0.1,
-    //   //   obj.position[1] * 0.1,
-    //   //   obj.position[2] * 0.1,
-    //   // ];
-    //   obj.height *= 0.01;
-    //   obj.width *= 0.01;
-    //   obj.weight *= 1000;
-    // });
-    // model.children[0].scale.set(0.1, 0.1, 0.1);
     helper.add(model, {
       physics: true,
     });
@@ -200,11 +186,6 @@ function init() {
 
     console.log(physicsHelper);
     console.log(model);
-    // physicsHelper.scale.set(0.1, 0.1, 0.1);
-    // physicsHelper.root.children.forEach(function (obj) {
-    //   console.log(obj);
-    // });
-    // console.log(physics_pos);
 
     bones.forEach(function (bone) {
       console.log(bone.name);
