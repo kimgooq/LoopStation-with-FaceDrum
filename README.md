@@ -21,7 +21,7 @@
 
 ### 예시 이미지
 
-![Play View](./world_view.PNG)
+![Play View](./img/world_view.PNG)
 
-![World View](./)camera_view1.PNG)
-![](./)camera_view2.PNG)
+![World View](./img/camera_view1.PNG)
+![](./img/camera_view2.PNG)
