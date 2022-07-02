@@ -21,7 +21,4 @@
 
 ### 예시 이미지
 
-![Play View](./img/world_view.PNG){: width="50%" height="50%"}
-
-![World View](./img/camera_view1.PNG){: width="50%" height="50%"}
-![](./img/camera_view2.PNG){: width="50%" height="50%"}
+<img src="./img/world_view.PNG" width="50%" height="50%"/>
