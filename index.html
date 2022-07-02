@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./style.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      async
+      src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"
+    ></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.133.1/build/three.module.js"
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="container">
+      <hr width="95%" size="2" />
+      <div id="intro">How to Use ?</div>
+      <hr width="95%" size="1.5" />
+      <div id="emoji">
+        <div id="start" style="float: left">
+          <div class="emojiscale">☝🏼</div>
+          <div class="explanation">START</div>
+        </div>
+        <div id="stop" style="float: left">
+          <div class="emojiscale">✌🏼</div>
+          <div class="explanation">STOP</div>
+        </div>
+        <div id="reset" style="float: left">
+          <img
+            id="threefinger"
+            src="./img/threefinger.png"
+            style="width: 110px; height: 110px"
+          />
+          <div class="explanation">RESET</div>
+        </div>
+        <div id="reset" style="float: left">
+          <div class="emojiscale">👍🏼</div>
+          <div class="explanation">METRONOME</div>
+          <div class="explanation">ON</div>
+          <div class="explanation">(face to camera)</div>
+        </div>
+        <div id="reset">
+          <div class="emojiscale">👎🏼</div>
+          <div class="explanation">METRONOME</div>
+          <div class="explanation">OFF</div>
+          <div class="explanation">(face to camera)</div>
+        </div>
+      </div>
+      <video class="input_webcam" hidden></video>
+      <canvas
+        class="output_canvas"
+        width="640px"
+        height="480px"
+        hidden
+      ></canvas>
+    </div>
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
