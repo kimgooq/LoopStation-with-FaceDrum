@@ -25,7 +25,7 @@ function startDrum() {
   if (isPlay == false) {
     timestarter = new Date();
     interval = setInterval(function () {
-      console.log(count);
+      // console.log(count);
       audio_metronome.currentTime = 0;
       audio_metronome.play();
       if (count === 8) {
@@ -52,7 +52,7 @@ function DrumPlay(index) {
   audioArray[index].play();
   ends = new Date();
   const timegap = ends - timestarter;
-  console.log(timegap);
+  // console.log(timegap);
   if (isPlay) {
     padDict[index].push(timegap);
   }
@@ -188,7 +188,7 @@ let group_text = new THREE.Group();
 let text_materials, red_text_materials;
 
 const text_loader = new FontLoader();
-text_loader.load("../json/DH_light.json", function (font) {
+text_loader.load("./json/DH_light.json", function (font) {
   const text_geometry_left808 = new TextGeometry("808　←", {
     font: font,
     size: 20,
@@ -698,7 +698,7 @@ function onResults2(results) {
 
     const dis_mouth = vec_mouth_height.length() / vec_mouth_width.length();
     if (dis_mouth > 1.2 && state_mouth == false) {
-      // console.log("A");
+      // console.log("mouth");
       state_mouth = true;
       DrumPlay(7);
       textMesh_vox.material = red_text_materials;
@@ -717,11 +717,11 @@ function onResults2(results) {
     } else if (dis_left_eye < 0.09) {
       lefteye_Isopened = -1;
       righteye_Isclosed = 1;
-      console.log("left closed");
+      // console.log("left closed");
     } else if (dis_right_eye < 0.09) {
       lefteye_Isopened = 1;
       righteye_Isclosed = -1;
-      console.log("right closed");
+      // console.log("right closed");
     }
     if (lefteye_Isopened * righteye_Isclosed < 0 && state_wink == false) {
       // console.log("wink");
