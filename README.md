@@ -25,5 +25,4 @@
 <img src="./img/world_view.PNG" width="65%" height="65%"/>
 
 - Play View
-<img src="./img/camera_view1.PNG" width="65%" height="65%"/>
-<img src="./img/camera_view2.PNG" width="65%" height="65%"/>
+<img src="./img/FaceDrum.gif" width="65%" height="65%"/>
