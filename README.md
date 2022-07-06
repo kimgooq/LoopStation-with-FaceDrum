@@ -4,7 +4,7 @@
 
 ---
 
->[TikTok 필터](https://www.tiktok.com/search/video?q=face%20drum&t=1656753628669)에서 아이디어를 착안하여 얼굴 움직임을 활용한 루프스테이션 기능 구현
+>[TikTok 필터](https://www.tiktok.com/search/video?q=face%20drum&t=1656753628669)에서 아이디어를 착안하여 얼굴 움직임을 활용한 드럼 사운드 플레이와 손동작으로 루프스테이션 기능을 제어하도록 구현
 
 ### 개발 스택
 
